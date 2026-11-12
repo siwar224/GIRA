@@ -79,7 +79,6 @@ export function PlateStage({ plateSrc, plateAlt, layers, hiddenKey, dropActive, 
             top: `${l.y}%`,
             width: `${l.w}%`,
             zIndex: l.z ?? 10,
-            rotate: l.rotate ? `${l.rotate}deg` : undefined,
             opacity: l.opacity,
             visibility: hiddenKey === l.key ? "hidden" : undefined,
           }}
@@ -90,11 +89,13 @@ export function PlateStage({ plateSrc, plateAlt, layers, hiddenKey, dropActive, 
             width={l.size?.[0] ?? 600}
             height={l.size?.[1] ?? 600}
             sizes={l.overlay ? "(min-width: 1280px) 46vw, 92vw" : "(min-width: 1280px) 16vw, 34vw"}
-            style={
-              l.clip
-                ? { clipPath: l.clip, translate: l.shift ? `${l.shift[0]}% ${l.shift[1]}%` : undefined }
-                : undefined
-            }
+            // Rotation/mirroring live on the image, so the wrapper's shadow always falls downward.
+            style={{
+              rotate: l.rotate ? `${l.rotate}deg` : undefined,
+              scale: l.flip ? "-1 1" : undefined,
+              clipPath: l.clip,
+              translate: l.shift ? `${l.shift[0]}% ${l.shift[1]}%` : undefined,
+            }}
           />
         </span>
       ))}

@@ -109,13 +109,13 @@ export function layersOf(sel: Selection): PlacedLayer[] {
     const item = byId(crea.seafood.items, id);
     const slot = crea.seafood.slots[i];
     if (!item || !slot) return;
-    if (item.pieces && item.single) {
+    if (item.pieces && item.piece) {
       // Several single pieces (e.g. three prawns) fanned around the slot; tighter in the side slots.
       const spread = i === 0 ? 1 : 0.65;
       item.pieces.forEach((pc, j) =>
         out.push({
-          src: item.img,
-          ...item.single!,
+          src: pc.src ?? item.piece!,
+          flip: pc.flip,
           x: slot.x + pc.dx * spread,
           y: slot.y + pc.dy * spread,
           w: pc.w,
