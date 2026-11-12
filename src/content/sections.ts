@@ -282,6 +282,7 @@ export const visit = {
     { day: 0, label: "Sunday", ranges: [["12:00", "15:30"]] },
   ] satisfies DayHours[],
   closedLabel: "Closed",
+  book: { label: "Book a table", href: "/prenota" },
   badge: {
     open: "Open now",
     closed: "Closed now",

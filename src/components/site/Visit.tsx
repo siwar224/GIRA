@@ -16,6 +16,11 @@ export function Visit() {
             {visit.title}
           </SplitHeading>
           <OpenBadge />
+          <p>
+            <a className="btn btn--primary visit__book" href={visit.book.href}>
+              {visit.book.label} <span aria-hidden="true">→</span>
+            </a>
+          </p>
         </div>
 
         <address className="visit__address">

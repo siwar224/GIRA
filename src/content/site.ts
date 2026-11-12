@@ -16,7 +16,7 @@ export const site = {
       { href: "/crea-il-tuo", label: "Crea il tuo", badge: "New" },
       { href: "/#visit", label: "Visit" },
     ],
-    cta: { href: "/#visit", label: "Book a table" },
+    cta: { href: "/prenota", label: "Book a table" },
     /** Shown next to the CTA once something is in the order. */
     cart: { label: "Your order", href: "/crea-il-tuo" },
   },

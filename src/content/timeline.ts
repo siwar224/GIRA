@@ -82,7 +82,7 @@ export const heroTimeline = {
       eyebrow: "Gira",
       title: "From the spiral to your plate.",
       body: "A small kitchen with one obsession: pasta and the sea, done properly.",
-      cta: { href: "#visit", label: "Book a table" },
+      cta: { href: "/prenota", label: "Book a table" },
       cta2: { href: "/crea-il-tuo", label: "Crea il tuo" },
     },
   ] satisfies Beat[],

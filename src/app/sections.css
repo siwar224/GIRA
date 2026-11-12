@@ -881,3 +881,7 @@
   background: var(--color-zafferano);
   color: var(--color-sugo);
 }
+
+.visit__book {
+  margin-top: 1.25rem;
+}

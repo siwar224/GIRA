@@ -1,0 +1,125 @@
+"use client";
+import Image from "next/image";
+import { useState } from "react";
+import { booking, type AreaId, type Meal } from "@/content/booking";
+import { fits, isTaken, type Table } from "@/lib/booking";
+
+type Props = {
+  meal: Meal;
+  date: string;
+  time: string | null;
+  guests: number;
+  area: AreaId | null;
+  value: string | null;
+  onChange: (tableId: string) => void;
+};
+
+type TableState = "free" | "taken" | "small" | "big";
+
+/**
+ * The room from above (lunch or night version) with every table placed on it in code.
+ * Tables that fit the party and are free at the chosen time glow; tapping one opens its card
+ * with the area photo in the same light. Counter seats are highlighted over the real stools.
+ */
+export function FloorPlan({ meal, date, time, guests, area, value, onChange }: Props) {
+  const [focus, setFocus] = useState<string | null>(value);
+  const P = booking.plan;
+
+  const stateOf = (t: Table): TableState => {
+    if (t.size < guests) return "small";
+    if (!fits(t.size, guests)) return "big";
+    if (time && isTaken(t.id, date, time)) return "taken";
+    return "free";
+  };
+
+  const shown = booking.tables.find((t) => t.id === focus) ?? null;
+  const shownState = shown ? stateOf(shown) : null;
+  const shownArea = shown ? booking.areas.find((a) => a.id === shown.area) : null;
+
+  return (
+    <div className="plan" data-meal={meal} data-locked={!time || undefined}>
+      <div className="plan__room" style={{ aspectRatio: `${P.width} / ${P.height}` }}>
+        {(["lunch", "dinner"] as Meal[]).map((m) => (
+          <Image
+            key={m}
+            src={P.image[m]}
+            alt={m === meal ? "Floor plan of the restaurant: window side, main room, chef's counter and terrace." : ""}
+            width={P.width}
+            height={P.height}
+            sizes="(min-width: 1024px) 60vw, 96vw"
+            className="plan__img"
+            data-on={m === meal || undefined}
+          />
+        ))}
+
+        {booking.tables.map((t) => {
+          const st = stateOf(t);
+          const w = booking.tableWidthOnPlan[t.size];
+          const reason =
+            st === "taken" ? P.taken : st === "small" ? P.tooSmall : st === "big" ? P.tooBig : P.seats(t.size);
+          return (
+            <button
+              key={t.id}
+              type="button"
+              className={t.counter ? "plan__table plan__table--counter" : "plan__table"}
+              data-state={st}
+              data-selected={value === t.id || undefined}
+              data-focus={focus === t.id || undefined}
+              data-dim={(area && t.area !== area) || undefined}
+              style={{ left: `${t.x}%`, top: `${t.y}%`, width: t.counter ? "11%" : `${w}%` }}
+              aria-label={`${t.label}, ${reason}`}
+              aria-pressed={value === t.id}
+              disabled={!time}
+              onClick={() => {
+                setFocus(t.id);
+                if (st === "free") onChange(t.id);
+              }}
+            >
+              {!t.counter && (
+                <Image
+                  src={booking.scene.table[t.size][meal]}
+                  alt=""
+                  width={booking.scene.imageSize}
+                  height={booking.scene.imageSize}
+                  sizes="10vw"
+                />
+              )}
+              <span className="plan__num" aria-hidden="true">
+                {t.counter ? t.label.replace("Counter ", "C") : t.id}
+              </span>
+            </button>
+          );
+        })}
+
+        {!time && <p className="plan__lock">{P.pickTime}</p>}
+      </div>
+
+      {shown && shownArea && (
+        <div className="plan__card" aria-live="polite">
+          <div className="plan__card-media">
+            <Image src={shownArea.photo[meal]} alt="" width={1448} height={1086} sizes="(min-width: 1024px) 22rem, 90vw" />
+          </div>
+          <div className="plan__card-body">
+            <p className="plan__card-title">
+              {shown.label} <span>· {shownArea.label}</span>
+            </p>
+            <p className="plan__card-meta">
+              {P.seats(shown.size)} · {shownArea.note}
+            </p>
+            {value === shown.id ? (
+              <p className="plan__card-ok">✓ {P.selected}</p>
+            ) : shownState === "free" ? (
+              <button type="button" className="btn btn--primary" onClick={() => onChange(shown.id)}>
+                {P.select}
+              </button>
+            ) : (
+              <p className="plan__card-no">
+                {shownState === "taken" ? P.taken : shownState === "small" ? P.tooSmall : P.tooBig}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
