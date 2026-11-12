@@ -44,6 +44,15 @@ export function Story() {
           });
         });
 
+        // The plate rises in (opacity + translate only, so nothing is ever cropped).
+        gsap.from(".story__plate-img", {
+          autoAlpha: 0,
+          y: 60,
+          duration: 1.2,
+          ease: "power3.out",
+          scrollTrigger: { trigger: ".story__plate", start: "top 80%", once: true },
+        });
+
         // Parallax: the photo drifts slower than the page.
         gsap.fromTo(
           ".story__media img",
@@ -114,6 +123,26 @@ export function Story() {
           </ol>
         </div>
       </div>
+
+      {/* The plate, presented whole: natural aspect ratio, no crop, no rounded corners. */}
+      <figure className="story__plate" aria-labelledby="story-plate-title">
+        <Image
+          src={story.plate.image.src}
+          width={story.plate.image.width}
+          height={story.plate.image.height}
+          alt={story.plate.image.alt}
+          sizes="(min-width: 1280px) 72rem, 100vw"
+          unoptimized
+          className="story__plate-img"
+        />
+        <figcaption className="story__plate-caption">
+          <span className="eyebrow story__eyebrow">{story.plate.eyebrow}</span>
+          <span id="story-plate-title" className="story__plate-title">
+            {story.plate.title}
+          </span>
+          <span className="story__plate-text">{story.plate.caption}</span>
+        </figcaption>
+      </figure>
     </section>
   );
 }

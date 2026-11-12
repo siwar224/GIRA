@@ -601,3 +601,38 @@
   font-size: 0.8125rem;
   color: color-mix(in oklab, var(--color-crema) 75%, transparent);
 }
+
+/* ── Story: the plate, shown whole ────────────────────────────────── */
+.story__plate {
+  max-width: 72rem;
+  margin: clamp(4rem, 9vw, 7rem) auto 0;
+  display: grid;
+  justify-items: center;
+  gap: 1.5rem;
+}
+.story__plate-img {
+  display: block;
+  width: 100%;
+  height: auto; /* keep the photo's own 1672x941 proportions: no crop, no object-fit */
+  max-width: none;
+}
+.story__plate-caption {
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+  max-width: 38rem;
+  text-align: center;
+}
+.story__plate-caption .story__eyebrow {
+  margin-bottom: 0;
+}
+.story__plate-title {
+  font-family: var(--font-serif);
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  line-height: 1.1;
+  color: var(--color-rosso);
+}
+.story__plate-text {
+  line-height: 1.65;
+  text-wrap: pretty;
+}

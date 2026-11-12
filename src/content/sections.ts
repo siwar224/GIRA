@@ -22,6 +22,18 @@ export const story = {
     { title: "Fresh from the sea", body: "Mussels, prawns and the catch of the day, chosen at the market that morning." },
     { title: "Twirled to order", body: "Pasta and sea meet in the pan for minutes. It reaches your table still turning." },
   ],
+  /** The signature plate, shown whole: never cropped, always at its own 1672×941 proportions. */
+  plate: {
+    eyebrow: "Il piatto",
+    title: "Linguine allo scoglio",
+    caption: "Our signature plate: hand-rolled linguine, mussels, prawns, cherry tomatoes and basil, finished in the pan in minutes.",
+    image: {
+      src: "/images/plate-linguine-scoglio.webp",
+      width: 1672,
+      height: 941,
+      alt: "A white plate of linguine in tomato sauce with mussels, prawns, halved cherry tomatoes and a sprig of basil.",
+    },
+  },
   image: {
     src: "/images/story-spiral.webp",
     width: 760,
