@@ -197,10 +197,15 @@ export function ScrollStage() {
                   </p>
                 )}
                 {beat.cta && (
-                  <p data-beat-line>
+                  <p data-beat-line className="beat__ctas">
                     <a className="btn btn--primary" href={beat.cta.href}>
                       {beat.cta.label}
                     </a>
+                    {"cta2" in beat && beat.cta2 && (
+                      <a className="btn btn--ghost beat__cta2" href={beat.cta2.href}>
+                        {beat.cta2.label} <span aria-hidden="true">→</span>
+                      </a>
+                    )}
                   </p>
                 )}
               </div>

@@ -13,13 +13,15 @@ export const site = {
     links: [
       { href: "/#story", label: "Story" },
       { href: "/#menu", label: "Menu" },
-      { href: "/crea-il-tuo", label: "Crea il tuo" },
+      { href: "/crea-il-tuo", label: "Crea il tuo", badge: "New" },
       { href: "/#visit", label: "Visit" },
     ],
     cta: { href: "/#visit", label: "Book a table" },
     /** Shown next to the CTA once something is in the order. */
     cart: { label: "Your order", href: "/crea-il-tuo" },
   },
+  /** Phones: a floating shortcut to the builder, shown between the hero and the footer. */
+  floatingCrea: { href: "/crea-il-tuo", label: "Crea il tuo" },
   skipLink: "Skip to content",
   preloader: { label: "Preparing the kitchen" },
   scrollHint: "Scroll",

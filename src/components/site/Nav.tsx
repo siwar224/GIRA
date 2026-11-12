@@ -78,7 +78,14 @@ export function Nav() {
         <ul className="nav__links">
           {site.nav.links.map((l) => (
             <li key={l.href}>
-              <a href={l.href}>{l.label}</a>
+              {"badge" in l ? (
+                <a href={l.href} className="nav__link--pill">
+                  {l.label}
+                  <span className="nav__badge">{l.badge}</span>
+                </a>
+              ) : (
+                <a href={l.href}>{l.label}</a>
+              )}
             </li>
           ))}
         </ul>

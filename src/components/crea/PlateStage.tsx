@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useEffect, useState, type Ref } from "react";
 import { crea } from "@/content/crea";
 import type { PlacedLayer } from "@/lib/crea";
+import "./plate.css";
 
 type Props = {
   plateSrc: string | null;
@@ -12,6 +13,10 @@ type Props = {
   hiddenKey: string | null;
   dropActive: boolean;
   dragging: boolean;
+  /** Load the empty plate eagerly (the builder); the landing teaser lets it lazy-load. */
+  priority?: boolean;
+  /** Image sizes hint for this context. */
+  sizes?: string;
   ref?: Ref<HTMLDivElement>;
 };
 
@@ -19,7 +24,17 @@ type Props = {
  * The plate: empty plate underneath, the pasta × sauce plate cross-fading on top,
  * then ingredient layers placed in % of the plate image so they scale with it.
  */
-export function PlateStage({ plateSrc, plateAlt, layers, hiddenKey, dropActive, dragging, ref }: Props) {
+export function PlateStage({
+  plateSrc,
+  plateAlt,
+  layers,
+  hiddenKey,
+  dropActive,
+  dragging,
+  priority = false,
+  sizes = "(min-width: 1280px) 46vw, 92vw",
+  ref,
+}: Props) {
   // Keep the previous plate under the new one so the cross-fade never flashes the empty plate.
   const [stack, setStack] = useState<{ prev: string | null; cur: string | null }>({ prev: null, cur: plateSrc });
   useEffect(() => {
@@ -41,18 +56,19 @@ export function PlateStage({ plateSrc, plateAlt, layers, hiddenKey, dropActive, 
         alt={plateSrc ? "" : crea.plate.emptyAlt}
         width={width}
         height={height}
-        sizes="(min-width: 1280px) 46vw, 92vw"
-        priority
+        sizes={sizes}
+        priority={priority}
         className="plate__img"
       />
-      {stack.prev && stack.prev !== stack.cur && (
+      {/* The previous plate stays under the new one during the cross-fade (not when emptying). */}
+      {stack.prev && stack.cur && stack.prev !== stack.cur && (
         <Image
           key={`prev-${stack.prev}`}
           src={stack.prev}
           alt=""
           width={width}
           height={height}
-          sizes="(min-width: 1280px) 46vw, 92vw"
+          sizes={sizes}
           className="plate__img"
         />
       )}
@@ -63,7 +79,7 @@ export function PlateStage({ plateSrc, plateAlt, layers, hiddenKey, dropActive, 
           alt={plateAlt}
           width={width}
           height={height}
-          sizes="(min-width: 1280px) 46vw, 92vw"
+          sizes={sizes}
           className="plate__img plate__img--in"
           onAnimationEnd={() => setStack((s) => ({ ...s, prev: null }))}
         />
@@ -88,7 +104,7 @@ export function PlateStage({ plateSrc, plateAlt, layers, hiddenKey, dropActive, 
             alt=""
             width={l.size?.[0] ?? 600}
             height={l.size?.[1] ?? 600}
-            sizes={l.overlay ? "(min-width: 1280px) 46vw, 92vw" : "(min-width: 1280px) 16vw, 34vw"}
+            sizes={l.overlay ? sizes : "(min-width: 1280px) 16vw, 34vw"}
             // Rotation/mirroring live on the image, so the wrapper's shadow always falls downward.
             style={{
               rotate: l.rotate ? `${l.rotate}deg` : undefined,

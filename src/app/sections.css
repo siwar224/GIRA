@@ -664,3 +664,220 @@
   line-height: 1.55;
   color: color-mix(in oklab, var(--color-crema) 88%, transparent);
 }
+
+/* ── Crea il tuo teaser (scroll-driven plate) ─────────────────────── */
+.crea-teaser {
+  background: var(--color-crema-plate);
+  color: var(--color-cozza);
+  border-top: 1px solid color-mix(in oklab, var(--color-rosso) 14%, transparent);
+}
+.crea-teaser__sticky {
+  display: grid;
+  gap: 2.5rem;
+  align-items: center;
+  max-width: 84rem;
+  margin: 0 auto;
+  padding: clamp(5rem, 10vw, 8rem) clamp(1.25rem, 6vw, 6rem);
+}
+@media (min-width: 1024px) {
+  .crea-teaser__sticky {
+    grid-template-columns: 1.15fr 1fr;
+    gap: clamp(2rem, 5vw, 5rem);
+  }
+}
+/* Motion allowed: the section is tall and its content stays pinned while the plate builds. */
+@media (prefers-reduced-motion: no-preference) {
+  .crea-teaser {
+    height: 340svh;
+  }
+  .crea-teaser__sticky {
+    position: sticky;
+    top: 0;
+    min-height: 100svh;
+    padding-block: 5.5rem 2rem;
+  }
+}
+.crea-teaser__plate {
+  width: 100%;
+  max-width: 44rem;
+  margin-inline: auto;
+}
+@media (max-width: 1023px) {
+  .crea-teaser__plate {
+    max-width: min(100%, 26rem);
+  }
+}
+.crea-teaser__eyebrow {
+  color: #a3301b;
+  margin-bottom: 1rem;
+}
+.crea-teaser__title {
+  color: var(--color-rosso);
+}
+.crea-teaser__lead {
+  margin-top: 1.1rem;
+  max-width: 30rem;
+  line-height: 1.65;
+  color: color-mix(in oklab, var(--color-cozza) 82%, transparent);
+}
+.crea-teaser__steps {
+  list-style: none;
+  margin: 2rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+.crea-teaser__step {
+  display: grid;
+  grid-template-columns: 2.25rem 1fr;
+  gap: 0.9rem;
+  align-items: start;
+  padding: 0.75rem 0.9rem;
+  border-radius: 1rem;
+  opacity: 0.45;
+  transition:
+    opacity 0.35s ease,
+    background-color 0.35s ease;
+}
+.crea-teaser__step[data-done] {
+  opacity: 0.75;
+}
+.crea-teaser__step[data-active] {
+  opacity: 1;
+  background: #fffaf2;
+  box-shadow: 0 8px 24px rgb(74 18 12 / 0.08);
+}
+.crea-teaser__num {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  border: 1.5px solid color-mix(in oklab, var(--color-rosso) 35%, transparent);
+  font-family: var(--font-serif);
+  color: var(--color-rosso);
+  transition:
+    background-color 0.35s ease,
+    color 0.35s ease;
+}
+.crea-teaser__step[data-active] .crea-teaser__num,
+.crea-teaser__step[data-done] .crea-teaser__num {
+  background: var(--color-rosso);
+  border-color: var(--color-rosso);
+  color: var(--color-crema);
+}
+.crea-teaser__label {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  color: var(--color-rosso);
+}
+.crea-teaser__text {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: color-mix(in oklab, var(--color-cozza) 82%, transparent);
+}
+.crea-teaser__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 1.5rem;
+  margin-top: 1.75rem;
+}
+.crea-teaser__total {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+.crea-teaser__total span {
+  font-size: 0.875rem;
+  color: color-mix(in oklab, var(--color-cozza) 75%, transparent);
+}
+.crea-teaser__total strong {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: clamp(1.75rem, 3vw, 2.4rem);
+  color: var(--color-rosso);
+  animation: price-pop 0.35s var(--ease-out-soft);
+}
+.crea-teaser__total small {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  color: color-mix(in oklab, var(--color-cozza) 75%, transparent);
+}
+@keyframes price-pop {
+  from {
+    transform: translateY(6px);
+    opacity: 0.4;
+  }
+}
+.crea-teaser__cta {
+  min-height: 52px;
+  padding: 0 1.6rem;
+  background: var(--color-rosso);
+  color: var(--color-crema);
+}
+.crea-teaser__cta:hover {
+  background: var(--color-sugo);
+}
+/* Phones and tablets: keep the pinned screen compact — only the active step shows its line. */
+@media (max-width: 1023px) and (prefers-reduced-motion: no-preference) {
+  .crea-teaser__sticky {
+    gap: 1rem;
+    align-content: center;
+  }
+  .crea-teaser__lead {
+    display: none;
+  }
+  .crea-teaser__steps {
+    margin-top: 1rem;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.25rem;
+  }
+  .crea-teaser__step {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+    padding: 0.5rem 0.25rem;
+    gap: 0.35rem;
+  }
+  .crea-teaser__label {
+    font-size: 0.9rem;
+  }
+  .crea-teaser__text {
+    display: none;
+  }
+  .crea-teaser__foot {
+    margin-top: 1rem;
+  }
+}
+
+/* Menu: "Customise" opens Crea il tuo with the dish already on the plate. */
+.menu__item {
+  position: relative;
+}
+.menu__customise {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 44px;
+  margin: -0.75rem 0 0.5rem;
+  padding: 0 0.9rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--color-zafferano) 60%, transparent);
+  color: var(--color-zafferano);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+.menu__customise:hover {
+  background: var(--color-zafferano);
+  color: var(--color-sugo);
+}

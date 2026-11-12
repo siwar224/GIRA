@@ -26,6 +26,7 @@ import {
   placeKey,
   priceOf,
   sauceAvailable,
+  selectionFromQuery,
   type Point,
   type Selection,
 } from "@/lib/crea";
@@ -282,6 +283,15 @@ export function CreaBuilder() {
     goStep("pasta");
   };
 
+  // Opened from a "Customise" link? Start from that plate, on the step where it gets personal.
+  useEffect(() => {
+    const preset = selectionFromQuery(new URLSearchParams(window.location.search));
+    if (!preset) return;
+    selRef.current = preset;
+    setSel(preset);
+    setStep(preset.seafood.length ? "tocco" : "mare");
+  }, []);
+
   // Clear the warning on its own after a moment.
   useEffect(() => {
     if (!warning) return;
@@ -409,6 +419,7 @@ export function CreaBuilder() {
               hiddenKey={flyingKey}
               dropActive={overPlate && !!drag?.active}
               dragging={!!drag?.active}
+              priority
             />
             <p className="crea__plate-name" aria-hidden="true">
               {name ? (

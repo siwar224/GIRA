@@ -5,6 +5,9 @@ import { Marquee } from "@/components/site/Marquee";
 import { Story } from "@/components/site/Story";
 import { Menu } from "@/components/site/Menu";
 import { Quote } from "@/components/site/Quote";
+import { CreaTeaser } from "@/components/site/CreaTeaser";
+import { FloatingCrea } from "@/components/site/FloatingCrea";
+import { WelcomeCrea } from "@/components/site/WelcomeCrea";
 import { Visit } from "@/components/site/Visit";
 import { site, seo } from "@/content/site";
 import { visit } from "@/content/sections";
@@ -46,9 +49,12 @@ export default function HomePage() {
         <Marquee />
         <Story />
         <Menu />
+        <CreaTeaser />
         <Quote />
       </main>
       <Visit />
+      <FloatingCrea />
+      <WelcomeCrea />
       <script
         type="application/ld+json"
          

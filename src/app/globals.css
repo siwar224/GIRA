@@ -636,3 +636,224 @@ html.lenis body {
   font: 600 0.8125rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
   font-variant-numeric: tabular-nums;
 }
+
+/* ── Crea il tuo: nav pill, hero second button, floating phone shortcut ── */
+.nav__links a.nav__link--pill {
+  gap: 0.45rem;
+  border: 1px solid color-mix(in oklab, currentColor 45%, transparent);
+}
+.nav__badge {
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  background: var(--color-zafferano);
+  color: var(--color-sugo);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.beat__ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.beat__ctas .btn {
+  margin-top: 1.75rem;
+}
+.beat__cta2 {
+  color: var(--color-crema);
+  border-color: color-mix(in oklab, var(--color-crema) 70%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.floating-crea {
+  display: none;
+}
+@media (max-width: 767px) {
+  .floating-crea {
+    position: fixed;
+    right: 1rem;
+    bottom: calc(1rem + env(safe-area-inset-bottom));
+    z-index: 45;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 48px;
+    padding: 0 1.1rem 0 0.6rem;
+    border-radius: 999px;
+    background: var(--color-rosso);
+    color: var(--color-crema);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    text-decoration: none;
+    box-shadow: 0 10px 30px rgb(74 18 12 / 0.35);
+    opacity: 0;
+    transform: translateY(16px);
+    pointer-events: none;
+    transition:
+      opacity 0.3s ease,
+      transform 0.35s var(--ease-out-soft);
+  }
+  .floating-crea[data-show] {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+  .floating-crea img {
+    width: 2rem;
+    height: 2rem;
+  }
+}
+
+/* ── Welcome invitation for Crea il tuo ───────────────────────────── */
+.welcome-crea {
+  position: fixed;
+  left: clamp(1rem, 3vw, 2rem);
+  bottom: clamp(1rem, 3vw, 2rem);
+  z-index: 55;
+  display: grid;
+  grid-template-columns: 112px 1fr;
+  gap: 1rem;
+  align-items: center;
+  width: min(26rem, calc(100vw - 2rem));
+  padding: 1rem 2.75rem 1rem 1rem;
+  border-radius: 1.25rem;
+  background: #fffaf2;
+  color: var(--color-cozza);
+  border: 1px solid color-mix(in oklab, var(--color-rosso) 14%, transparent);
+  box-shadow:
+    0 24px 60px rgb(74 18 12 / 0.28),
+    0 4px 12px rgb(74 18 12 / 0.12);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(24px) scale(0.98);
+  transition:
+    opacity 0.4s ease,
+    transform 0.55s var(--ease-out-soft),
+    visibility 0s linear 0.55s;
+}
+.welcome-crea[data-open] {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition:
+    opacity 0.4s ease,
+    transform 0.55s var(--ease-out-soft),
+    visibility 0s;
+}
+.welcome-crea__media {
+  width: 112px;
+  aspect-ratio: 1448 / 1086;
+  border-radius: 0.9rem;
+  background: var(--color-crema-plate);
+  overflow: hidden;
+}
+.welcome-crea__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: scale(1.15);
+}
+.welcome-crea__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #a3301b;
+  font-weight: 600;
+}
+.welcome-crea__badge {
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: var(--color-zafferano);
+  color: var(--color-sugo);
+  letter-spacing: 0.06em;
+  font-size: 0.6875rem;
+}
+.welcome-crea__title {
+  margin-top: 0.3rem;
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  line-height: 1.15;
+  color: var(--color-rosso);
+}
+.welcome-crea__text {
+  margin-top: 0.35rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: color-mix(in oklab, var(--color-cozza) 82%, transparent);
+}
+.welcome-crea__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.75rem;
+  margin-top: 0.75rem;
+}
+.welcome-crea__cta {
+  min-height: 44px;
+  padding: 0 1.2rem;
+  background: var(--color-rosso);
+  color: var(--color-crema);
+}
+.welcome-crea__cta:hover {
+  background: var(--color-sugo);
+}
+.welcome-crea__later {
+  min-height: 44px;
+  padding: 0 0.25rem;
+  font-size: 0.875rem;
+  color: color-mix(in oklab, var(--color-cozza) 70%, transparent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.welcome-crea__close {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: color-mix(in oklab, var(--color-cozza) 60%, transparent);
+  cursor: pointer;
+}
+.welcome-crea__close:hover {
+  background: color-mix(in oklab, var(--color-rosso) 8%, transparent);
+  color: var(--color-rosso);
+}
+@media (max-width: 479px) {
+  .welcome-crea {
+    grid-template-columns: 84px 1fr;
+  }
+  .welcome-crea__media {
+    width: 84px;
+  }
+}
+/* While the invitation shows, the nav's "Crea il tuo" pill pulses to point the way. */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-welcome] .nav__link--pill {
+    animation: pill-pulse 1.8s ease-out infinite;
+  }
+}
+@keyframes pill-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgb(228 165 58 / 0.65);
+  }
+  80%,
+  100% {
+    box-shadow: 0 0 0 12px rgb(228 165 58 / 0);
+  }
+}
+/* Phones: the hero text sits at the bottom, so the invitation drops in under the nav instead. */
+@media (max-width: 767px) {
+  .welcome-crea {
+    top: 4.5rem;
+    bottom: auto;
+    left: 1rem;
+    transform: translateY(-16px) scale(0.98);
+  }
+}

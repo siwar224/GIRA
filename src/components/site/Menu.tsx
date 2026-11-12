@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useId, useRef, useState, type KeyboardEvent } from "react";
 import { menu, type MenuCategory, type MenuItem } from "@/content/sections";
 import { SplitHeading } from "./SplitHeading";
+import { creaLink } from "@/lib/crea";
 
 const price = new Intl.NumberFormat("en-GB", { style: "currency", currency: menu.currency, maximumFractionDigits: 0 });
 
@@ -124,6 +125,15 @@ export function Menu() {
                     <span className="menu__item-price tabular-nums">{price.format(Number(item.price))}</span>
                     <span className="menu__item-desc">{item.description}</span>
                   </button>
+                  {item.crea && (
+                    <a
+                      className="menu__customise"
+                      href={creaLink(item.crea)}
+                      aria-label={menu.customiseLabel(item.name)}
+                    >
+                      {menu.customise} <span aria-hidden="true">→</span>
+                    </a>
+                  )}
                   <div id={detailId} className="menu__detail" hidden={!isOpen}>
                     <div className="menu__detail-media">
                       <Image

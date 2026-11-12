@@ -18,6 +18,7 @@ export type Beat = {
   title: string;
   body?: string;
   cta?: { href: string; label: string };
+  cta2?: { href: string; label: string };
 };
 
 export const heroTimeline = {
@@ -82,6 +83,7 @@ export const heroTimeline = {
       title: "From the spiral to your plate.",
       body: "A small kitchen with one obsession: pasta and the sea, done properly.",
       cta: { href: "#visit", label: "Book a table" },
+      cta2: { href: "/crea-il-tuo", label: "Crea il tuo" },
     },
   ] satisfies Beat[],
 } as const;

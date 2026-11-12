@@ -3,7 +3,7 @@
 
 export const marquee = {
   label: "GIRA in a few words",
-  items: ["Pasta fresca", "Frutti di mare", "Fatto a mano", "Pomodoro & basilico", "Dal mare alla tavola"],
+  items: ["Pasta fresca", "Frutti di mare", "Crea il tuo", "Fatto a mano", "Pomodoro & basilico", "Dal mare alla tavola"],
 } as const;
 
 export const story = {
@@ -52,6 +52,8 @@ export type MenuItem = {
   tags?: string[];
   /** Shown whole at its own proportions (the dish photos carry their name, so they are never cropped). */
   image?: MenuImage;
+  /** Opens "Crea il tuo" with this dish already on the plate. */
+  crea?: { pasta: "linguine" | "spaghetti" | "paccheri"; sauce?: "pomodoro" | "bianco" | "nero" | "pesto"; sea?: ("prawns" | "mussels" | "clams" | "squid" | "octopus")[]; extras?: ("burrata" | "extraPrawns" | "bread")[] };
 };
 
 export type MenuCategory = { id: string; label: string; intro: string; items: MenuItem[] };
@@ -64,6 +66,8 @@ export const menu = {
   eyebrow: "Il menù",
   title: "Pasta, sea, and very little in between.",
   note: "Our menu follows the market — a few dishes change every week.",
+  customise: "Customise",
+  customiseLabel: (dish: string) => `Customise ${dish} in Crea il tuo`,
   crea: {
     title: "Or build your own.",
     text: "Pick the pasta, the sauce and up to three treasures from the sea — and watch your plate come together.",
@@ -82,6 +86,7 @@ export const menu = {
           name: "Spaghetti al pomodoro",
           description: "San Marzano tomato, garlic confit, torn basil, a prawn on top.",
           price: "14",
+          crea: { pasta: "spaghetti", sauce: "pomodoro" },
           image: {
             src: "/images/menu/spaghetti-al-pomodoro.webp",
             alt: "A plate of spaghetti in tomato sauce topped with basil and grated cheese, fresh tomatoes behind.",
@@ -93,6 +98,7 @@ export const menu = {
           description: "Mussels, prawns, cherry tomatoes and white wine — our signature plate.",
           price: "24",
           tags: ["Signature"],
+          crea: { pasta: "linguine", sauce: "pomodoro", sea: ["prawns", "mussels", "clams"] },
           image: {
             src: "/images/plate-linguine-scoglio.webp",
             alt: "A white plate of linguine in tomato sauce with mussels, prawns, halved cherry tomatoes and basil.",
@@ -104,6 +110,7 @@ export const menu = {
           description: "Fried aubergine, slow tomato sugo, ricotta salata.",
           price: "16",
           tags: ["Vegetarian"],
+          crea: { pasta: "paccheri", sauce: "pomodoro" },
           image: {
             src: "/images/menu/paccheri-alla-norma.png",
             alt: "Paccheri in tomato sauce with fried aubergine, grated ricotta salata and basil.",
@@ -300,4 +307,50 @@ export const visit = {
   },
   wordmark: "GIRA",
   legal: "© GIRA — Pasta & Mare. Demo site.",
+} as const;
+
+/**
+ * Landing-page teaser for "Crea il tuo": a plate builds itself as the visitor scrolls.
+ * Each stage adds to the one before; `step` lights up the matching step on the right.
+ */
+export const creaTeaser = {
+  id: "crea",
+  eyebrow: "Crea il tuo",
+  title: "Your plate, turned your way.",
+  lead: "Pick the pasta, the sauce and up to three treasures from the sea. We twirl it to order.",
+  steps: [
+    { id: "pasta", number: 1, label: "La pasta", text: "Linguine, spaghetti or paccheri, rolled this morning." },
+    { id: "sugo", number: 2, label: "Il sugo", text: "Pomodoro, bianco, nero di seppia or pesto." },
+    { id: "mare", number: 3, label: "Il mare", text: "Prawns, mussels, clams: drop them where you like." },
+    { id: "tocco", number: 4, label: "Il tocco", text: "Burrata, chilli, a softer bite: make it yours." },
+  ],
+  /** What the plate shows at each scroll stage (the first is the empty plate). */
+  stages: [
+    { step: "pasta", pasta: null, sauce: "bianco", sea: [], extras: [] },
+    { step: "pasta", pasta: "linguine", sauce: "bianco", sea: [], extras: [] },
+    { step: "sugo", pasta: "linguine", sauce: "pomodoro", sea: [], extras: [] },
+    { step: "mare", pasta: "linguine", sauce: "pomodoro", sea: ["prawns"], extras: [] },
+    { step: "mare", pasta: "linguine", sauce: "pomodoro", sea: ["prawns", "mussels"], extras: [] },
+    { step: "mare", pasta: "linguine", sauce: "pomodoro", sea: ["prawns", "mussels", "clams"], extras: [] },
+    { step: "tocco", pasta: "linguine", sauce: "pomodoro", sea: ["prawns", "mussels", "clams"], extras: ["burrata"] },
+  ],
+  total: "Your plate",
+  from: "from",
+  cta: { label: "Build your plate", href: "/crea-il-tuo" },
+  plateAlt: "A plate of linguine building itself: tomato sauce, prawns, mussels, clams and burrata.",
+} as const;
+
+/** The invitation card that greets visitors once the intro has played. */
+export const welcomeCrea = {
+  label: "New at GIRA: Crea il tuo",
+  badge: "Nuovo",
+  eyebrow: "Crea il tuo",
+  title: "Build your own plate.",
+  text: "Choose the pasta, the sauce and up to three treasures from the sea, and watch your plate come together.",
+  cta: { label: "Try it", href: "/crea-il-tuo" },
+  later: "Maybe later",
+  closeLabel: "Close",
+  image: "/crea/plates/plate-linguine-pomodoro.png",
+  /** Wait after the intro so the hero gets its moment first. */
+  delayMs: 2600,
 } as const;

@@ -164,3 +164,32 @@ export function layersOf(sel: Selection): PlacedLayer[] {
 
 export const formatPrice = (n: number) =>
   new Intl.NumberFormat("en-GB", { style: "currency", currency: "EUR", minimumFractionDigits: 2 }).format(n);
+
+/** A ready-made plate, e.g. a menu dish to customise. */
+export type Preset = { pasta: PastaId; sauce?: SauceId; sea?: SeafoodId[]; extras?: ExtraId[] };
+
+/** Link that opens the builder with this plate already on it: /crea-il-tuo?pasta=…&sauce=…&sea=…&extras=… */
+export function creaLink(p: Preset): string {
+  const q = new URLSearchParams({ pasta: p.pasta });
+  if (p.sauce) q.set("sauce", p.sauce);
+  if (p.sea?.length) q.set("sea", p.sea.join(","));
+  if (p.extras?.length) q.set("extras", p.extras.join(","));
+  return `/crea-il-tuo?${q.toString()}`;
+}
+
+/** Read a preset from a link; anything unknown or unavailable is ignored. */
+export function selectionFromQuery(params: URLSearchParams): Selection | null {
+  const pasta = params.get("pasta") as PastaId | null;
+  if (!pasta || !crea.pastas.some((p) => p.id === pasta) || !pastaAvailable(pasta)) return null;
+  const sauceParam = params.get("sauce") as SauceId | null;
+  const sauce = fitSauce(pasta, sauceParam && crea.sauces.some((s) => s.id === sauceParam) ? sauceParam : "pomodoro");
+  const list = (key: string) => (params.get(key) ?? "").split(",").filter(Boolean);
+  const seafood = list("sea")
+    .filter((id): id is SeafoodId => crea.seafood.items.some((x) => x.id === id))
+    .filter((id, i, all) => all.indexOf(id) === i)
+    .slice(0, crea.seafood.max);
+  const extras = list("extras")
+    .filter((id): id is ExtraId => crea.extras.items.some((x) => x.id === id))
+    .filter((id, i, all) => all.indexOf(id) === i);
+  return { ...initialSelection, pasta, sauce, seafood, extras };
+}
