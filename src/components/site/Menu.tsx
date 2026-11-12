@@ -120,10 +120,9 @@ export function Menu() {
                       <Image
                         src={img.src}
                         alt={img.alt}
-                        width={900}
-                        height={900}
-                        sizes="(min-width: 768px) 40vw, 85vw"
-                        style={{ objectPosition: item.image?.focal ?? "50% 50%" }}
+                        width={img.width}
+                        height={img.height}
+                        sizes="(min-width: 768px) 26rem, 90vw"
                       />
                     </div>
                   </div>
@@ -140,11 +139,10 @@ export function Menu() {
               key={shown.image.src}
               src={shown.image.src}
               alt=""
-              width={900}
-              height={900}
-              sizes="(min-width: 1024px) 34vw, 40vw"
+              width={shown.image.width}
+              height={shown.image.height}
+              sizes="(min-width: 1024px) 32rem, 40vw"
               className="menu__preview-img"
-              style={{ objectPosition: shown.image.focal ?? "50% 50%" }}
             />
           )}
         </div>

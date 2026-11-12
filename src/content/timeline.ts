@@ -2,7 +2,8 @@
 // Frame numbers are 1-based, matching the file names (f_0001.webp …).
 //   c1 → frames   1–120  fork twirl, pasta lifts into a spiral
 //   c2 → frames 121–241  the spiral turns, the sea orbits around it
-//   c3 → frames 242–386  the spiral settles onto the plate (cream background from 376)
+//   c3 → frames 242–375  the spiral settles onto the plate
+//   frame 376          the high-resolution plate photo (cream background), held at the end
 
 export type BeatAlign = "start" | "end";
 
@@ -23,7 +24,7 @@ export const heroTimeline = {
   /** Scroll distance (px) per frame. Higher = slower scrub. */
   pxPerFrame: 12,
   /** Extra frames of "hold" at the end so the plate rests before unpinning. */
-  holdFrames: 30,
+  holdFrames: 45,
   /** Frames over which a beat fades in or out. */
   fadeFrames: 14,
   /** From this frame the background is cream: nav switches to dark ink. */

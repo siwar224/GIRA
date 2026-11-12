@@ -1,15 +1,15 @@
 {
-  "version": "25cdfc9629",
+  "version": "0a31a02a7b",
   "basePath": "/frames",
   "pattern": "f_{n}.webp",
   "pad": 4,
   "width": 1920,
   "height": 1080,
   "desktop": {
-    "count": 386
+    "count": 376
   },
   "mobile": {
     "count": 0
   },
-  "lastFrame": 386
+  "lastFrame": 376
 }

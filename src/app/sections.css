@@ -328,17 +328,17 @@
 .menu__detail {
   padding-bottom: 1.5rem;
 }
+/* Dish photos carry their own name, so they are always shown whole (no crop). */
 .menu__detail-media {
   overflow: hidden;
   border-radius: 1rem;
-  aspect-ratio: 16 / 10;
-  max-width: 34rem;
-  background: var(--color-sugo);
+  max-width: 26rem;
+  background: #f9e4ca; /* the photos' own cream */
 }
 .menu__detail-media img {
+  display: block;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
 }
 .menu__preview {
   display: none;
@@ -348,22 +348,25 @@
     display: block;
     position: sticky;
     top: 7rem;
-    aspect-ratio: 4 / 5;
+    /* 4:5 = the portrait photos exactly; landscape ones sit whole on the same cream. */
+    aspect-ratio: 1122 / 1402;
     border-radius: 1.25rem;
     overflow: hidden;
-    background: var(--color-sugo);
+    background: #f9e4ca;
+    display: grid;
+    place-items: center;
   }
   .menu__preview-img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     animation: preview-in 0.45s var(--ease-out-soft);
   }
 }
 @keyframes preview-in {
   from {
     opacity: 0;
-    transform: scale(1.04);
+    transform: translateY(12px);
   }
 }
 

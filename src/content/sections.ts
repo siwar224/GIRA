@@ -43,15 +43,21 @@ export const story = {
   },
 } as const;
 
+export type MenuImage = { src: string; alt: string; width: number; height: number };
+
 export type MenuItem = {
   name: string;
   description: string;
   price: string;
   tags?: string[];
-  image?: { src: string; alt: string; focal?: string };
+  /** Shown whole at its own proportions (the dish photos carry their name, so they are never cropped). */
+  image?: MenuImage;
 };
 
 export type MenuCategory = { id: string; label: string; intro: string; items: MenuItem[] };
+
+const PORTRAIT = { width: 1122, height: 1402 } as const;
+const LANDSCAPE = { width: 1672, height: 941 } as const;
 
 export const menu = {
   id: "menu",
@@ -59,7 +65,7 @@ export const menu = {
   title: "Pasta, sea, and very little in between.",
   note: "Our menu follows the market — a few dishes change every week.",
   currency: "EUR",
-  fallbackImage: { src: "/brand/gira-icone-app-1024.png", alt: "The GIRA spiral", focal: "50% 50%" } as { src: string; alt: string; focal?: string },
+  fallbackImage: { src: "/brand/gira-icone-app-1024.png", alt: "The GIRA spiral", width: 1024, height: 1024 } as MenuImage,
   categories: [
     {
       id: "pasta",
@@ -73,7 +79,8 @@ export const menu = {
           image: {
             src: "/images/spaghetti-pomodoro.webp",
             alt: "A forkful of spaghetti in tomato sauce topped with a prawn and a basil leaf.",
-            focal: "45% 40%",
+            width: 900,
+            height: 900,
           },
         },
         {
@@ -82,8 +89,9 @@ export const menu = {
           price: "24",
           tags: ["Signature"],
           image: {
-            src: "/images/linguine-scoglio.webp",
-            alt: "A white plate of linguine with mussels, prawns, cherry tomatoes and basil.",
+            src: "/images/plate-linguine-scoglio.webp",
+            alt: "A white plate of linguine in tomato sauce with mussels, prawns, halved cherry tomatoes and basil.",
+            ...LANDSCAPE,
           },
         },
         {
@@ -91,14 +99,20 @@ export const menu = {
           description: "Fried aubergine, slow tomato sugo, ricotta salata.",
           price: "16",
           tags: ["Vegetarian"],
+          image: {
+            src: "/images/menu/paccheri-alla-norma.png",
+            alt: "Paccheri in tomato sauce with fried aubergine, grated ricotta salata and basil.",
+            ...PORTRAIT,
+          },
         },
         {
           name: "Tagliatelle ai frutti di mare",
           description: "Hand-cut ribbons, a white ragù of the day's catch, lemon zest.",
           price: "22",
           image: {
-            src: "/images/spirale-mare.webp",
-            alt: "Twisting pasta surrounded by mussels, prawns, tomatoes and basil.",
+            src: "/images/menu/tagliatelle-ai-frutti-di-mare.png",
+            alt: "Tagliatelle with prawns, mussels, squid rings and cherry tomatoes, topped with basil.",
+            ...PORTRAIT,
           },
         },
       ],
@@ -112,15 +126,32 @@ export const menu = {
           name: "Gamberi all'aglio",
           description: "Prawns seared with garlic, chilli and parsley, bread for the sauce.",
           price: "18",
-          image: { src: "/images/gamberi.webp", alt: "Close-up of seared prawns with basil on pasta." },
+          image: {
+            src: "/images/menu/gamberi-all-aglio.png",
+            alt: "Garlic prawns in a glossy butter sauce with parsley and basil on a white plate.",
+            ...PORTRAIT,
+          },
         },
         {
           name: "Cozze alla tarantina",
           description: "Mussels in a spicy tomato broth, grilled sourdough.",
           price: "15",
-          image: { src: "/images/cozze.webp", alt: "Open mussels in tomato sauce on a white plate." },
+          image: {
+            src: "/images/menu/cozze-alla-tarantina.png",
+            alt: "Open mussels in a spicy tomato broth with garlic and parsley.",
+            ...PORTRAIT,
+          },
         },
-        { name: "Frittura di paranza", description: "Small fish of the day, lightly fried, lemon.", price: "19" },
+        {
+          name: "Frittura di paranza",
+          description: "Small fish of the day, lightly fried, lemon.",
+          price: "19",
+          image: {
+            src: "/images/menu/frittura-di-paranza.png",
+            alt: "Lightly fried small fish, prawns and squid rings with lemon wedges.",
+            ...PORTRAIT,
+          },
+        },
       ],
     },
     {
@@ -133,10 +164,33 @@ export const menu = {
           description: "Sweet cherry tomatoes, creamy burrata, basil oil.",
           price: "12",
           tags: ["Vegetarian"],
-          image: { src: "/images/pomodorini.webp", alt: "Halved cherry tomatoes and a mussel in tomato sauce." },
+          image: {
+            src: "/images/menu/pomodorini-e-burrata.png",
+            alt: "A whole burrata surrounded by roasted cherry tomatoes, basil and olive oil.",
+            ...PORTRAIT,
+          },
         },
-        { name: "Bruschetta al pomodoro", description: "Grilled bread, raw tomato, garlic, oregano.", price: "8", tags: ["Vegan"] },
-        { name: "Polpo e patate", description: "Tender octopus, crushed potatoes, olives and parsley.", price: "14" },
+        {
+          name: "Bruschetta al pomodoro",
+          description: "Grilled bread, raw tomato, garlic, oregano.",
+          price: "8",
+          tags: ["Vegan"],
+          image: {
+            src: "/images/menu/bruschetta-al-pomodoro.png",
+            alt: "Slices of grilled bread topped with diced tomato and basil.",
+            ...PORTRAIT,
+          },
+        },
+        {
+          name: "Polpo e patate",
+          description: "Tender octopus, crushed potatoes, olives and parsley.",
+          price: "14",
+          image: {
+            src: "/images/menu/polpo-e-patate.png",
+            alt: "Octopus tentacles with potatoes, olives and parsley on a white plate.",
+            ...PORTRAIT,
+          },
+        },
       ],
     },
     {
@@ -144,9 +198,36 @@ export const menu = {
       label: "Dolci",
       intro: "Something sweet to finish the turn.",
       items: [
-        { name: "Tiramisù della casa", description: "Mascarpone, espresso, savoiardi, cocoa.", price: "8" },
-        { name: "Panna cotta agli agrumi", description: "Vanilla cream, citrus from Sicily.", price: "7" },
-        { name: "Cannolo siciliano", description: "Crisp shell, sheep's ricotta, pistachio.", price: "6" },
+        {
+          name: "Tiramisù della casa",
+          description: "Mascarpone, espresso, savoiardi, cocoa.",
+          price: "8",
+          image: {
+            src: "/images/menu/tiramisu-della-casa.png",
+            alt: "A square slice of tiramisù dusted with cocoa, topped with chocolate curls and mint.",
+            ...PORTRAIT,
+          },
+        },
+        {
+          name: "Panna cotta agli agrumi",
+          description: "Vanilla cream, citrus from Sicily.",
+          price: "7",
+          image: {
+            src: "/images/menu/panna-cotta-agli-agrumi.png",
+            alt: "A panna cotta topped with orange and blood-orange segments, citrus syrup and mint.",
+            ...LANDSCAPE,
+          },
+        },
+        {
+          name: "Cannolo siciliano",
+          description: "Crisp shell, sheep's ricotta, pistachio.",
+          price: "6",
+          image: {
+            src: "/images/menu/cannolo-siciliano.png",
+            alt: "A Sicilian cannolo filled with ricotta and chocolate chips, ends dipped in pistachio, with candied orange.",
+            ...LANDSCAPE,
+          },
+        },
       ],
     },
   ] satisfies MenuCategory[],
