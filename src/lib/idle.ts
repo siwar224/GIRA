@@ -4,8 +4,8 @@ export function onIdle(cb: () => void, timeout = 800): () => void {
     const id = window.requestIdleCallback(cb, { timeout });
     return () => window.cancelIdleCallback(id);
   }
-  const id = window.setTimeout(cb, 60);
-  return () => window.clearTimeout(id);
+  const id = globalThis.setTimeout(cb, 60);
+  return () => globalThis.clearTimeout(id);
 }
 
 export const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;

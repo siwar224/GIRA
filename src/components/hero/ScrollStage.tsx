@@ -8,6 +8,7 @@ import { heroTimeline } from "@/content/timeline";
 import { site } from "@/content/site";
 import { CanvasSequence, type CanvasSequenceHandle } from "./CanvasSequence";
 import { Preloader } from "./Preloader";
+import { HeroFX } from "./HeroFX";
 
 const EAGER_FRAMES = 30;
 const PRELOADER_TIMEOUT_MS = 8000;
@@ -24,6 +25,8 @@ export function ScrollStage() {
   const [ready, setReady] = useState(false);
   const [canvasLive, setCanvasLive] = useState(false);
   const [debug, setDebug] = useState(false);
+  /** True once the preloader starts leaving: the intro reveal plays from here. */
+  const [revealed, setRevealed] = useState(false);
 
   useEffect(() => {
     setDebug(new URLSearchParams(window.location.search).has("debug"));
@@ -145,29 +148,35 @@ export function ScrollStage() {
       style={{ "--portrait-factor": heroTimeline.portraitWidthFactor } as React.CSSProperties}
     >
       <div ref={stage} className="hero__stage">
-        {/* LCP: a real image of frame 1. Under reduced motion the final frame is shown instead. */}
-        <picture className="hero__poster">
-          <source media="(prefers-reduced-motion: reduce)" srcSet={lastFrame} />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={firstFrame}
-            width={frameManifest.width}
-            height={frameManifest.height}
-            alt=""
-            fetchPriority="high"
-            decoding="async"
-          />
-        </picture>
+        {/* Media layers: parallax (x/y) > zoom (intro blur + breathing scale) > poster + canvas. */}
+        <div className="hero__media">
+          <div className="hero__zoom">
+            {/* LCP: a real image of frame 1. Under reduced motion the final frame is shown instead. */}
+            <picture className="hero__poster">
+              <source media="(prefers-reduced-motion: reduce)" srcSet={lastFrame} />
+              { }
+              <img
+                src={firstFrame}
+                width={frameManifest.width}
+                height={frameManifest.height}
+                alt=""
+                fetchPriority="high"
+                decoding="async"
+              />
+            </picture>
 
-        <CanvasSequence
-          ref={canvas}
-          loader={loader}
-          focal={heroTimeline.focal}
-          portraitWidthFactor={heroTimeline.portraitWidthFactor}
-          className="hero__canvas"
-          onFirstDraw={() => setCanvasLive(true)}
-        />
+            <CanvasSequence
+              ref={canvas}
+              loader={loader}
+              focal={heroTimeline.focal}
+              portraitWidthFactor={heroTimeline.portraitWidthFactor}
+              className="hero__canvas"
+              onFirstDraw={() => setCanvasLive(true)}
+            />
+          </div>
+        </div>
         <div className="hero__scrim" aria-hidden="true" />
+        <HeroFX section={section} revealed={revealed} />
 
         <div className="hero__beats">
           {heroTimeline.beats.map((beat, i) => {
@@ -204,7 +213,7 @@ export function ScrollStage() {
         </p>
       </div>
 
-      <Preloader progress={progress} done={ready} />
+      <Preloader progress={progress} done={ready} onExit={() => setRevealed(true)} />
 
       {debug && (
         <div className="debug-badge" role="status">

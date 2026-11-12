@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { useId, useRef, useState, type KeyboardEvent } from "react";
-import { menu, type MenuItem } from "@/content/sections";
+import { menu, type MenuCategory, type MenuItem } from "@/content/sections";
 import { SplitHeading } from "./SplitHeading";
 
 const price = new Intl.NumberFormat("en-GB", { style: "currency", currency: menu.currency, maximumFractionDigits: 0 });
@@ -18,7 +18,7 @@ export function Menu() {
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
   const base = useId();
 
-  const categories = menu.categories;
+  const categories: readonly MenuCategory[] = menu.categories;
   const active = categories[tab] ?? categories[0]!;
   const shown = preview ?? active.items.find((i) => i.image) ?? null;
 

@@ -47,7 +47,7 @@ export const menu = {
   title: "Pasta, sea, and very little in between.",
   note: "Our menu follows the market — a few dishes change every week.",
   currency: "EUR",
-  fallbackImage: { src: "/brand/gira-icone-app-1024.png", alt: "The GIRA spiral" },
+  fallbackImage: { src: "/brand/gira-icone-app-1024.png", alt: "The GIRA spiral", focal: "50% 50%" } as { src: string; alt: string; focal?: string },
   categories: [
     {
       id: "pasta",

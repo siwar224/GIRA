@@ -228,6 +228,9 @@ html.lenis body {
 .hero__canvas,
 .hero__scrim,
 .hero__hint,
+.hero__particles,
+.hero__sweep,
+.hero__badge,
 .preloader {
   display: none;
 }
@@ -275,12 +278,100 @@ html.lenis body {
     overflow: hidden;
     background: var(--color-rosso);
   }
+  /* Media layers: overscan by 20px so mouse parallax never shows an edge. */
+  .hero__media {
+    position: absolute;
+    inset: -20px;
+    will-change: transform;
+  }
+  .hero__zoom {
+    position: absolute;
+    inset: 0;
+    will-change: transform;
+    transform-origin: 50% 50%;
+  }
   .hero__poster img,
   .hero__canvas {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
+  }
+
+  /* ── Living hero (phase 3) ── */
+  .hero__particles {
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+  }
+  .hero__sweep {
+    display: block;
+    position: absolute;
+    inset: -10% -30%;
+    pointer-events: none;
+    background: linear-gradient(
+      105deg,
+      transparent 38%,
+      rgb(255 236 210 / 0.07) 46%,
+      rgb(255 236 210 / 0.14) 50%,
+      rgb(255 236 210 / 0.07) 54%,
+      transparent 62%
+    );
+    mix-blend-mode: soft-light;
+    transform: translateX(-120%);
+  }
+  .hero__badge {
+    position: absolute;
+    right: clamp(1.5rem, 4vw, 3.5rem);
+    bottom: clamp(1.5rem, 4vw, 3rem);
+    width: clamp(108px, 9vw, 140px);
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    color: var(--color-crema);
+    pointer-events: none;
+  }
+  .hero[data-light] .hero__badge {
+    color: var(--color-rosso);
+  }
+  .hero__badge-ring {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+  .hero__badge-ring text {
+    fill: currentColor;
+    font-family: var(--font-sans);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .hero__badge-icon {
+    width: 34%;
+    height: auto;
+    opacity: 0.95;
+    transition: opacity 0.3s ease;
+  }
+  .hero[data-light] .hero__badge-icon {
+    filter: brightness(0.45) sepia(1) saturate(4) hue-rotate(-20deg);
+  }
+  @media (max-width: 767px) {
+    .hero__badge {
+      display: none;
+    }
+  }
+
+  /* The nav logo waits for the preloader wordmark to land in its place (FLIP hand-off). */
+  html:not([data-loaded]) .nav__logo img {
+    visibility: hidden;
   }
   .hero__poster img {
     object-fit: cover;

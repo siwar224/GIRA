@@ -32,6 +32,18 @@ export const heroTimeline = {
   focal: { x: 0.5, y: 0.5 },
   /** On portrait screens, the frame is drawn this many times the viewport width (cover would crop too much). */
   portraitWidthFactor: 1.9,
+  /** Living-hero effects (phase 3). All of them are off under reduced motion. */
+  fx: {
+    /** Text running around the rotating badge. */
+    badgeText: "Pasta fresca · Frutti di mare · Fatto a mano · ",
+    /** Seconds for one full badge turn at rest (scroll velocity speeds it up). */
+    badgeTurn: 18,
+    particles: 50,
+    /** Breathing zoom amplitude (1.03 = 3 %). */
+    breathe: 1.03,
+    /** Mouse parallax, in px, for the image and for the text (moves the other way). */
+    parallax: { media: 14, text: 8 },
+  },
   beats: [
     {
       id: "beat-open",

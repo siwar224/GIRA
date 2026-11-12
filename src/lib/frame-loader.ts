@@ -10,12 +10,12 @@ type IdleHandle = number;
 function requestIdle(cb: () => void): IdleHandle {
   return "requestIdleCallback" in window
     ? window.requestIdleCallback(cb, { timeout: 500 })
-    : window.setTimeout(cb, 32);
+    : (globalThis.setTimeout(cb, 32) as unknown as number);
 }
 
 function cancelIdle(h: IdleHandle) {
   if ("cancelIdleCallback" in window) window.cancelIdleCallback(h);
-  else window.clearTimeout(h);
+  else globalThis.clearTimeout(h);
 }
 
 export type FrameLoaderOptions = {
