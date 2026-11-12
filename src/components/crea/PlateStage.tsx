@@ -80,10 +80,22 @@ export function PlateStage({ plateSrc, plateAlt, layers, hiddenKey, dropActive, 
             width: `${l.w}%`,
             zIndex: l.z ?? 10,
             rotate: l.rotate ? `${l.rotate}deg` : undefined,
+            opacity: l.opacity,
             visibility: hiddenKey === l.key ? "hidden" : undefined,
           }}
         >
-          <Image src={l.src} alt="" width={600} height={600} sizes="(min-width: 1280px) 10vw, 22vw" />
+          <Image
+            src={l.src}
+            alt=""
+            width={600}
+            height={600}
+            sizes="(min-width: 1280px) 16vw, 34vw"
+            style={
+              l.clip
+                ? { clipPath: l.clip, translate: l.shift ? `${l.shift[0]}% ${l.shift[1]}%` : undefined }
+                : undefined
+            }
+          />
         </span>
       ))}
 

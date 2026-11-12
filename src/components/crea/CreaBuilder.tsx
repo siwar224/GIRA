@@ -110,7 +110,7 @@ export function CreaBuilder() {
   useLayoutEffect(() => {
     const fly = pendingFly.current;
     pendingFly.current = null;
-    if (!fly || reduced()) return;
+    if (!fly || reduced() || document.hidden) return;
     const target = plateRef.current?.querySelector<HTMLElement>(`[data-layer="${fly.key}"]`);
     if (!target) return;
     const to = target.getBoundingClientRect();
@@ -124,6 +124,12 @@ export function CreaBuilder() {
       width: `${fly.from.width}px`,
       height: `${fly.from.height}px`,
     });
+    // A single-piece layer (e.g. one prawn) flies as that piece, not the whole cut-out.
+    const targetImg = target.querySelector("img");
+    if (targetImg?.style.clipPath) {
+      ghost.style.clipPath = targetImg.style.clipPath;
+      ghost.style.translate = targetImg.style.translate;
+    }
     document.body.appendChild(ghost);
     setFlyingKey(fly.key);
 

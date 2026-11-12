@@ -103,11 +103,36 @@ export function layersOf(sel: Selection): PlacedLayer[] {
   if (!sel.pasta) return [];
   const L = crea.layers;
   const out: PlacedLayer[] = [];
-  if (!sel.remove.includes("cheese")) out.push({ ...L.cheese, key: "cheese", label: "Cheese" });
+  // Grated cheese: a few sprinkles around the edge of the pasta, so it never fights the burrata.
+  if (!sel.remove.includes("cheese")) {
+    out.push({ ...L.cheese, key: "cheese", label: "Cheese" });
+    out.push({ ...L.cheese2, key: "cheese2", label: "Cheese" });
+    out.push({ ...L.cheese3, key: "cheese3", label: "Cheese" });
+    out.push({ ...L.cheese4, key: "cheese4", label: "Cheese" });
+  }
   sel.seafood.forEach((id, i) => {
     const item = byId(crea.seafood.items, id);
     const slot = crea.seafood.slots[i];
-    if (item && slot) out.push({ ...slot, src: item.img, z: 20 - i, key: `sea-${id}`, label: item.label });
+    if (!item || !slot) return;
+    if (item.pieces && item.single) {
+      // Several single pieces (e.g. three prawns) fanned around the slot; tighter in the side slots.
+      const spread = i === 0 ? 1 : 0.65;
+      item.pieces.forEach((pc, j) =>
+        out.push({
+          src: item.img,
+          ...item.single!,
+          x: slot.x + pc.dx * spread,
+          y: slot.y + pc.dy * spread,
+          w: pc.w,
+          rotate: pc.rotate,
+          z: 20 - i,
+          key: j === 1 ? `sea-${id}` : `sea-${id}-${j}`,
+          label: item.label,
+        }),
+      );
+      return;
+    }
+    out.push({ ...slot, src: item.img, z: 20 - i, key: `sea-${id}`, label: item.label });
   });
   if (sel.extras.includes("burrata")) out.push({ ...L.burrata, key: "burrata", label: "Burrata" });
   if (sel.extras.includes("extraPrawns")) out.push({ ...L.extraPrawns, key: "extraPrawns", label: "Extra prawns" });

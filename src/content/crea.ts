@@ -13,8 +13,31 @@ export const allergenLabels: Record<AllergenId, string> = {
   sulphites: "Sulphites",
 };
 
-/** A layer drawn on the plate. Position and size are % of the plate image (1448×1086). */
-export type Layer = { src: string; x: number; y: number; w: number; rotate?: number; z?: number };
+/**
+ * A layer drawn on the plate. Position and size are % of the plate image (1448×1086).
+ * `clip` + `shift` show a single piece out of a cut-out that holds several (CSS clip-path,
+ * the source file is untouched); `shift` re-centres the visible piece, in % of the cut-out.
+ */
+export type Layer = {
+  src: string;
+  x: number;
+  y: number;
+  w: number;
+  rotate?: number;
+  z?: number;
+  clip?: string;
+  shift?: [number, number];
+  opacity?: number;
+};
+
+/** One whole prawn (the front one) traced out of ing-prawns.png, which holds three. */
+export const SINGLE_PRAWN = {
+  clip: "polygon(44.58% 43.75%, 60% 43.17%, 60.83% 47.67%, 58.33% 49.83%, 51.25% 52.08%, 47.5% 54.83%, 46.25% 57.92%, 48.33% 59.83%, 53.33% 58.75%, 58.33% 55.67%, 62.33% 52.5%, 65.42% 53.33%, 65.67% 60.83%, 63.5% 66.83%, 58.33% 71.83%, 50.83% 74.5%, 40% 73.67%, 32.33% 69.33%, 30.33% 63.5%, 31.25% 58.33%, 35% 54.83%, 40% 51.67%, 44% 48.5%)",
+  shift: [2, -9] as [number, number],
+} as const;
+
+/** A piece placed relative to its seafood slot (offsets in % of the plate image). */
+export type Piece = { dx: number; dy: number; w: number; rotate: number };
 
 export type PastaId = "linguine" | "spaghetti" | "paccheri" | "tagliatelle";
 export type SauceId = "pomodoro" | "bianco" | "nero" | "pesto";
@@ -121,17 +144,39 @@ export const crea = {
     max: 3,
     maxReached: "You can choose up to 3 — remove one to swap.",
     items: [
-      { id: "prawns", label: "Prawns", price: 5, allergens: ["crustaceans"], img: `${ING}/ing-prawns.png` },
+      {
+        id: "prawns",
+        label: "Prawns",
+        price: 5,
+        allergens: ["crustaceans"],
+        img: `${ING}/ing-prawns.png`,
+        // Served as three single prawns fanned in a crescent over the pasta.
+        single: SINGLE_PRAWN,
+        pieces: [
+          { dx: -15, dy: 5, w: 46, rotate: -52 },
+          { dx: -1, dy: -2, w: 48, rotate: -2 },
+          { dx: 14, dy: 6, w: 46, rotate: 50 },
+        ],
+      },
       { id: "mussels", label: "Mussels", price: 4, allergens: ["molluscs"], img: `${ING}/ing-mussels.png` },
       { id: "clams", label: "Clams", price: 4, allergens: ["molluscs"], img: `${ING}/ing-clams.png` },
       { id: "squid", label: "Squid", price: 4, allergens: ["molluscs"], img: `${ING}/ing-squid.png` },
       { id: "octopus", label: "Octopus", price: 6, allergens: ["molluscs"], img: `${ING}/ing-octopus.png` },
-    ] as { id: SeafoodId; label: string; price: number; allergens: AllergenId[]; img: string }[],
+    ] as {
+      id: SeafoodId;
+      label: string;
+      price: number;
+      allergens: AllergenId[];
+      img: string;
+      single?: { clip: string; shift: [number, number] };
+      pieces?: Piece[];
+    }[],
     /** Where the 1st, 2nd and 3rd seafood land on the plate. */
     slots: [
-      { x: 37, y: 40, w: 32, rotate: -8 },
-      { x: 62, y: 38, w: 32, rotate: 10 },
-      { x: 50, y: 61, w: 33, rotate: -2 },
+      // 1st pick = the showpiece, centred across the top of the pasta; then lower left, lower right.
+      { x: 50, y: 35, w: 32, rotate: -4 },
+      { x: 36, y: 58, w: 32, rotate: -10 },
+      { x: 64, y: 57, w: 32, rotate: 10 },
     ] as Omit<Layer, "src">[],
   },
 
@@ -185,12 +230,17 @@ export const crea = {
   layers: {
     // Sizes are generous on purpose: each cut-out PNG has a wide transparent margin,
     // so w ≈ 2× the visible size of the food. Tuned live against the plates at 1440px.
-    basil: { src: `${ING}/ing-basil.png`, x: 55, y: 25, w: 24, rotate: 6, z: 30 },
-    cheese: { src: `${ING}/ing-cheese.png`, x: 48, y: 46, w: 30, z: 12 },
+    basil: { src: `${ING}/ing-basil.png`, x: 64, y: 27, w: 22, rotate: 18, z: 30 },
+    /** Cheese = small sprinkles around the edge of the pasta, never in the middle (the centre belongs to the seafood and burrata). */
+    cheese: { src: `${ING}/ing-cheese.png`, x: 32, y: 50, w: 9, rotate: -10, z: 12, opacity: 0.92 },
+    cheese2: { src: `${ING}/ing-cheese.png`, x: 69, y: 47, w: 8, rotate: 30, z: 12, opacity: 0.9 },
+    cheese3: { src: `${ING}/ing-cheese.png`, x: 37, y: 66, w: 7, rotate: 70, z: 12, opacity: 0.88 },
+    cheese4: { src: `${ING}/ing-cheese.png`, x: 64, y: 67, w: 7, rotate: -40, z: 12, opacity: 0.88 },
     chilli: { src: `${ING}/ing-chilli.png`, x: 36, y: 57, w: 15, rotate: -12, z: 25 },
     chilliHot: { src: `${ING}/ing-chilli.png`, x: 65, y: 55, w: 14, rotate: 24, z: 25 },
     burrata: { src: `${ING}/ing-burrata.png`, x: 50, y: 47, w: 25, z: 15 },
-    extraPrawns: { src: `${ING}/ing-prawns.png`, x: 41, y: 64, w: 30, rotate: 18, z: 21 },
+    /** Extra prawns = exactly one more prawn, laid across the front of the pasta. */
+    extraPrawns: { src: `${ING}/ing-prawns.png`, x: 57, y: 66, w: 52, rotate: -24, z: 21, ...SINGLE_PRAWN },
     /** Bread sits beside the plate, not on it. */
     bread: { src: `${ING}/ing-bread.png`, x: 86, y: 78, w: 32, rotate: -6, z: 40 },
   } satisfies Record<string, Layer>,
