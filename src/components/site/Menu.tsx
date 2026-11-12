@@ -49,6 +49,15 @@ export function Menu() {
           {menu.title}
         </SplitHeading>
         <p className="menu__note">{menu.note}</p>
+        <div className="menu__crea">
+          <div>
+            <p className="menu__crea-title">{menu.crea.title}</p>
+            <p className="menu__crea-text">{menu.crea.text}</p>
+          </div>
+          <a className="btn btn--primary" href={menu.crea.href}>
+            {menu.crea.label} <span aria-hidden="true">→</span>
+          </a>
+        </div>
       </div>
 
       <div className="menu__tabs" role="tablist" aria-label={menu.eyebrow}>

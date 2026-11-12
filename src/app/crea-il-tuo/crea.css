@@ -1,0 +1,796 @@
+/* "Crea il tuo" builder. Loaded only on /crea-il-tuo. Tokens come from globals.css. */
+
+.crea-page {
+  --card: #fffaf2;
+  --line: color-mix(in oklab, var(--color-rosso) 14%, transparent);
+  --ink-soft: color-mix(in oklab, var(--color-cozza) 78%, transparent);
+  background: var(--color-crema-plate);
+  color: var(--color-cozza);
+  min-height: 100svh;
+  padding-top: 5rem;
+}
+
+.crea {
+  max-width: 92rem;
+  margin: 0 auto;
+  padding: 1.5rem clamp(1rem, 3vw, 2.5rem) 0;
+}
+
+/* ── Header + stepper ─────────────────────────────────────────────── */
+.crea__head {
+  display: grid;
+  gap: 1.5rem;
+  align-items: end;
+  margin-bottom: 2rem;
+}
+@media (min-width: 1024px) {
+  .crea__head {
+    grid-template-columns: 1fr auto;
+  }
+}
+.crea__eyebrow {
+  color: #a3301b;
+  margin-bottom: 0.6rem;
+}
+.crea__title {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: clamp(2.5rem, 5vw, 4.25rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--color-rosso);
+}
+.crea__lead {
+  margin-top: 0.75rem;
+  max-width: 34rem;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+
+.stepper ol {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.stepper li {
+  display: flex;
+  align-items: center;
+}
+.stepper__btn {
+  display: grid;
+  justify-items: center;
+  gap: 0.35rem;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.25rem 0.4rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  border-radius: 0.75rem;
+}
+.stepper__num {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 1.5px solid color-mix(in oklab, var(--color-rosso) 35%, transparent);
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  color: var(--color-rosso);
+  background: var(--card);
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+.stepper__btn[data-done] .stepper__num {
+  background: color-mix(in oklab, var(--color-rosso) 12%, var(--card));
+}
+.stepper__btn[aria-current="step"] .stepper__num {
+  background: var(--color-rosso);
+  color: var(--color-crema);
+  border-color: var(--color-rosso);
+}
+.stepper__btn[aria-current="step"] .stepper__label {
+  color: var(--color-rosso);
+  font-weight: 600;
+}
+.stepper__label {
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+.stepper__line {
+  width: clamp(1rem, 3vw, 2.5rem);
+  height: 1.5px;
+  margin-bottom: 1.5rem;
+  background: color-mix(in oklab, var(--color-rosso) 30%, transparent);
+}
+
+/* ── Layout ───────────────────────────────────────────────────────── */
+.crea__grid {
+  display: grid;
+  gap: 1.5rem;
+}
+/* Phones, tablets, small laptops: plate on top (sticky), then one step at a time. */
+@media (max-width: 1279px) {
+  .crea__col {
+    display: contents;
+  }
+  .crea__plate-wrap {
+    order: -1;
+    position: sticky;
+    top: 4rem;
+    z-index: 5;
+    background: var(--color-crema-plate);
+    padding-bottom: 0.5rem;
+  }
+  .crea__plate-wrap .plate {
+    max-width: min(100%, 34rem);
+    margin-inline: auto;
+  }
+  .crea__section:not([data-active]) {
+    display: none;
+  }
+  .crea__head {
+    margin-bottom: 1rem;
+  }
+}
+/* Wide screens: everything at once, like a chef's pass. */
+@media (min-width: 1280px) {
+  .crea__grid {
+    grid-template-columns: 18rem minmax(0, 1fr) 25rem;
+    gap: 2rem;
+    align-items: start;
+  }
+  .crea__col--center {
+    position: sticky;
+    top: 5.5rem;
+  }
+  .crea__col--left,
+  .crea__col--right {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .crea__stepnav {
+    display: none !important;
+  }
+}
+
+.crea__section {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 1.25rem;
+  padding: 1.25rem;
+  scroll-margin-top: 6rem;
+}
+.crea__h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: var(--color-rosso);
+  margin-bottom: 1rem;
+}
+.crea__h2-num {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: var(--color-rosso);
+  color: var(--color-crema);
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+.crea__count {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  color: var(--ink-soft);
+}
+.crea__hint {
+  margin: -0.4rem 0 1rem;
+  font-size: 0.875rem;
+  color: var(--ink-soft);
+}
+
+/* ── Choice cards (radios) ────────────────────────────────────────── */
+.choice-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+.choice-grid--pasta {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (min-width: 640px) and (max-width: 1279px) {
+  .choice-grid--pasta {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .choice-grid--sauce {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.choice {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 0.35rem;
+  padding: 0.6rem 0.6rem 0.75rem;
+  border-radius: 1rem;
+  border: 1.5px solid var(--line);
+  background: #fff;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s var(--ease-out-soft);
+}
+.choice:hover {
+  border-color: color-mix(in oklab, var(--color-rosso) 40%, transparent);
+}
+.choice:active {
+  transform: scale(0.98);
+}
+.choice[data-checked] {
+  border-color: var(--color-rosso);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-rosso) 14%, transparent);
+}
+.choice[data-checked]::after {
+  content: "✓";
+  position: absolute;
+  top: -0.5rem;
+  right: -0.5rem;
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: var(--color-rosso);
+  color: var(--color-crema);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.choice:has(input:focus-visible) {
+  outline: 2px solid var(--color-zafferano);
+  outline-offset: 3px;
+}
+.choice[data-disabled] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.choice__media {
+  display: block;
+  overflow: hidden;
+  border-radius: 0.75rem;
+}
+.choice__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.choice__media--pasta {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+}
+/* No icon yet: show the pasta from its own plate, zoomed on the nest. */
+.choice__media--pasta[data-crop] img {
+  object-fit: cover;
+  transform: scale(1.75);
+}
+.choice__label {
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+.choice__price {
+  font-size: 0.8125rem;
+  color: var(--ink-soft);
+}
+.choice--row {
+  grid-template-columns: 3.5rem 1fr auto;
+  justify-items: start;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.9rem 0.5rem 0.5rem;
+}
+.choice__media--sauce {
+  width: 3.5rem;
+  height: 3.5rem;
+}
+.choice__text {
+  display: grid;
+  gap: 0.1rem;
+}
+.choice__note {
+  font-size: 0.8125rem;
+  color: var(--ink-soft);
+}
+
+/* ── Plate ────────────────────────────────────────────────────────── */
+.crea__plate-wrap {
+  display: grid;
+  gap: 0.5rem;
+}
+.plate {
+  position: relative;
+  width: 100%;
+  user-select: none;
+}
+.plate__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+.plate__img--in {
+  animation: plate-in 0.45s ease both;
+}
+@keyframes plate-in {
+  from {
+    opacity: 0;
+  }
+}
+.plate__layer {
+  position: absolute;
+  translate: -50% -50%;
+  pointer-events: none;
+  animation: layer-in 0.55s var(--ease-out-soft) both;
+}
+.plate__layer img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 6px 6px rgb(60 20 10 / 0.25));
+}
+@keyframes layer-in {
+  from {
+    opacity: 0;
+    transform: translateY(-30%) scale(0.7);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(2%) scale(1.04);
+  }
+}
+.plate__drop {
+  position: absolute;
+  inset: 10% 14% 14%;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 2px dashed transparent;
+  color: transparent;
+  font-weight: 600;
+  pointer-events: none;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+.plate[data-dragging] .plate__drop {
+  border-color: color-mix(in oklab, var(--color-rosso) 40%, transparent);
+}
+.plate[data-drop] .plate__drop {
+  border-color: var(--color-rosso);
+  background: color-mix(in oklab, var(--color-zafferano) 14%, transparent);
+  color: var(--color-rosso);
+}
+.crea__plate-name {
+  text-align: center;
+  font-family: var(--font-serif);
+  font-size: clamp(1.05rem, 1.6vw, 1.35rem);
+  color: var(--color-rosso);
+  min-height: 1.6em;
+}
+.crea__plate-name span {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #a3301b;
+  margin-right: 0.4rem;
+}
+
+/* ── Ingredient tiles (toggle buttons, draggable with a mouse) ───── */
+.tile-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
+  gap: 0.6rem;
+}
+.tile {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 0.15rem;
+  padding: 0.5rem 0.35rem 0.6rem;
+  border-radius: 1rem;
+  border: 1.5px solid var(--line);
+  background: #fff;
+  cursor: grab;
+  touch-action: manipulation;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s var(--ease-out-soft),
+    opacity 0.2s ease;
+}
+.tile:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in oklab, var(--color-rosso) 40%, transparent);
+}
+.tile:active {
+  cursor: grabbing;
+}
+.tile img {
+  width: 4.25rem;
+  height: 4.25rem;
+  object-fit: contain;
+  pointer-events: none;
+}
+.tile[aria-pressed="true"] {
+  border-color: var(--color-rosso);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-rosso) 14%, transparent);
+}
+.tile[aria-pressed="true"]::after {
+  content: "✓";
+  position: absolute;
+  top: -0.45rem;
+  right: -0.45rem;
+  display: grid;
+  place-items: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  background: var(--color-rosso);
+  color: var(--color-crema);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.tile[aria-disabled="true"] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+.tile__label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.2;
+}
+.tile__price {
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+}
+.tile-row--extras .tile img {
+  width: 3.5rem;
+  height: 3.5rem;
+}
+
+/* ── Il tocco options ─────────────────────────────────────────────── */
+.opt {
+  border: 0;
+  margin: 0;
+  padding: 1rem 0;
+  border-top: 1px solid var(--line);
+  min-width: 0;
+}
+.crea__h2 + .opt {
+  border-top: 0;
+  padding-top: 0;
+}
+.opt__title {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  color: var(--color-rosso);
+  margin-bottom: 0.75rem;
+  padding: 0;
+}
+
+.spice {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+.spice::before {
+  content: "";
+  position: absolute;
+  left: 12.5%;
+  right: 12.5%;
+  top: 1.95rem;
+  height: 2px;
+  background: color-mix(in oklab, var(--color-rosso) 22%, transparent);
+}
+.spice__opt {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 0.25rem;
+  min-height: 44px;
+  cursor: pointer;
+  font-size: 0.8125rem;
+}
+.spice__chillies {
+  font-size: 0.8rem;
+  height: 1.1rem;
+  line-height: 1.1rem;
+}
+.spice__dot {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: var(--card);
+  border: 2px solid color-mix(in oklab, var(--color-rosso) 45%, transparent);
+  order: 2;
+  transition:
+    transform 0.2s var(--ease-out-soft),
+    background-color 0.2s ease;
+}
+.spice__chillies {
+  order: 1;
+}
+.spice__label {
+  order: 3;
+}
+.spice__opt[data-checked] .spice__dot {
+  background: var(--color-rosso);
+  border-color: var(--color-rosso);
+  transform: scale(1.25);
+}
+.spice__opt[data-checked] .spice__label {
+  color: var(--color-rosso);
+  font-weight: 600;
+}
+.spice__opt:has(input:focus-visible) .spice__dot {
+  outline: 2px solid var(--color-zafferano);
+  outline-offset: 3px;
+}
+
+.checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.25rem;
+}
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  cursor: pointer;
+  font-size: 0.9375rem;
+}
+.check input {
+  width: 1.15rem;
+  height: 1.15rem;
+  accent-color: var(--color-rosso);
+}
+
+.segment {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--color-rosso) 7%, var(--card));
+}
+.segment__opt {
+  display: grid;
+  place-items: center;
+  min-height: 44px;
+  padding: 0 0.75rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+.segment__opt[data-checked] {
+  background: var(--color-rosso);
+  color: var(--color-crema);
+  font-weight: 600;
+}
+.segment__opt:has(input:focus-visible) {
+  outline: 2px solid var(--color-zafferano);
+  outline-offset: 2px;
+}
+
+.note {
+  width: 100%;
+  min-height: 3.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.9rem;
+  border: 1.5px solid var(--line);
+  background: #fff;
+  font: inherit;
+  font-size: 0.9375rem;
+  resize: vertical;
+}
+.note:focus-visible {
+  border-color: var(--color-rosso);
+}
+.note__count {
+  margin-top: 0.3rem;
+  text-align: right;
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+}
+
+/* ── Mobile step navigation ───────────────────────────────────────── */
+.crea__stepnav {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+  color: var(--color-rosso);
+}
+.crea__stepnav .btn {
+  flex: 1;
+}
+
+/* ── Summary bar (sticky) ─────────────────────────────────────────── */
+.crea__bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+  margin: 1.5rem calc(-1 * clamp(1rem, 3vw, 2.5rem)) 0;
+  padding: 0.9rem clamp(1rem, 3vw, 2.5rem) calc(0.9rem + env(safe-area-inset-bottom));
+  background: color-mix(in oklab, var(--card) 92%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--line);
+  box-shadow: 0 -10px 30px rgb(74 18 12 / 0.08);
+}
+@media (min-width: 768px) {
+  .crea__bar {
+    grid-template-columns: 1fr auto auto;
+    border-radius: 1.25rem 1.25rem 0 0;
+    margin-inline: 0;
+  }
+}
+.crea__allergens {
+  grid-column: 1 / -1;
+  font-size: 0.875rem;
+  color: var(--ink-soft);
+}
+@media (min-width: 768px) {
+  .crea__allergens {
+    grid-column: auto;
+  }
+}
+.crea__allergens-title {
+  color: #a3301b;
+  font-weight: 600;
+}
+.crea__total {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+.crea__total span {
+  font-size: 0.875rem;
+  color: var(--ink-soft);
+}
+.crea__total strong {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: clamp(1.6rem, 2.6vw, 2.1rem);
+  color: var(--color-rosso);
+}
+.crea__total small {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+.crea__cta {
+  min-height: 52px;
+  padding: 0 1.75rem;
+  background: var(--color-rosso);
+  color: var(--color-crema);
+  font-size: 1rem;
+}
+.crea__cta:hover {
+  background: var(--color-sugo);
+}
+.crea__added {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 0.5rem;
+}
+@media (min-width: 768px) {
+  .crea__added {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+}
+.crea__added-title {
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  font-weight: 500;
+  color: var(--color-basilico);
+}
+.crea__added-title:focus-visible {
+  outline-offset: 4px;
+}
+.crea__added-body {
+  font-size: 0.9375rem;
+  color: var(--ink-soft);
+}
+.crea__added-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  color: var(--color-rosso);
+}
+@media (min-width: 768px) {
+  .crea__added-actions {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+}
+
+/* ── Feedback ─────────────────────────────────────────────────────── */
+.crea__warning {
+  position: fixed;
+  left: 50%;
+  bottom: 7.5rem;
+  z-index: 60;
+  translate: -50% 0;
+  max-width: min(92vw, 28rem);
+  padding: 0.75rem 1.1rem;
+  border-radius: 999px;
+  background: var(--color-sugo);
+  color: var(--color-crema);
+  font-size: 0.9rem;
+  text-align: center;
+  box-shadow: 0 10px 30px rgb(74 18 12 / 0.25);
+  animation: toast-in 0.3s var(--ease-out-soft);
+}
+.crea__warning:empty {
+  display: none;
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* Flying copy (tap) and drag ghost (mouse). */
+.crea-ghost {
+  position: fixed;
+  z-index: 1000;
+  object-fit: contain;
+  pointer-events: none;
+  will-change: transform;
+  filter: drop-shadow(0 12px 14px rgb(60 20 10 / 0.3));
+}
+.crea-drag {
+  position: fixed;
+  z-index: 1000;
+  width: 7rem;
+  translate: -50% -50%;
+  rotate: -6deg;
+  pointer-events: none;
+  filter: drop-shadow(0 16px 18px rgb(60 20 10 / 0.35));
+}
+.crea[data-dragging] {
+  cursor: grabbing;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plate__img--in,
+  .plate__layer,
+  .crea__warning {
+    animation: none;
+  }
+}

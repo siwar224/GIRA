@@ -639,3 +639,28 @@
   line-height: 1.65;
   text-wrap: pretty;
 }
+
+/* ── Menu: "Crea il tuo" invitation ───────────────────────────────── */
+.menu__crea {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+  margin-top: 2rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 1.25rem;
+  border: 1px solid color-mix(in oklab, var(--color-zafferano) 55%, transparent);
+  background: color-mix(in oklab, var(--color-sugo) 45%, transparent);
+}
+.menu__crea-title {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  color: var(--color-zafferano);
+}
+.menu__crea-text {
+  margin-top: 0.25rem;
+  max-width: 36rem;
+  line-height: 1.55;
+  color: color-mix(in oklab, var(--color-crema) 88%, transparent);
+}

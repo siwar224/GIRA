@@ -64,6 +64,12 @@ export const menu = {
   eyebrow: "Il menù",
   title: "Pasta, sea, and very little in between.",
   note: "Our menu follows the market — a few dishes change every week.",
+  crea: {
+    title: "Or build your own.",
+    text: "Pick the pasta, the sauce and up to three treasures from the sea — and watch your plate come together.",
+    label: "Crea il tuo",
+    href: "/crea-il-tuo",
+  },
   currency: "EUR",
   fallbackImage: { src: "/brand/gira-icone-app-1024.png", alt: "The GIRA spiral", width: 1024, height: 1024 } as MenuImage,
   categories: [

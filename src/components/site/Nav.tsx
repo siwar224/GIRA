@@ -1,8 +1,10 @@
 "use client";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ScrollTrigger } from "@/lib/gsap";
 import { setActiveSurface, useNavTheme, type NavSurface } from "@/lib/nav-theme";
 import { site } from "@/content/site";
+import { useCart } from "@/lib/cart";
 
 /**
  * Transparent over the hero frames, frosted glass tinted to the section below elsewhere.
@@ -10,6 +12,7 @@ import { site } from "@/content/site";
  */
 export function Nav() {
   const { surface, ink } = useNavTheme();
+  const cart = useCart();
   const [hidden, setHidden] = useState(false);
   const bar = useRef<HTMLSpanElement>(null);
 
@@ -68,10 +71,10 @@ export function Nav() {
         {site.skipLink}
       </a>
       <nav className="nav__inner" aria-label={site.nav.label}>
-        <a className="nav__logo" href="#top" aria-label={`${site.name} — home`}>
+        <Link className="nav__logo" href="/" aria-label={`${site.name} — home`}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={logo.src} width={logo.width} height={logo.height} alt={site.logo.alt} />
-        </a>
+        </Link>
         <ul className="nav__links">
           {site.nav.links.map((l) => (
             <li key={l.href}>
@@ -79,6 +82,12 @@ export function Nav() {
             </li>
           ))}
         </ul>
+        {cart.length > 0 && (
+          <a className="nav__cart" href={site.nav.cart.href}>
+            {site.nav.cart.label}
+            <span className="nav__cart-count tabular-nums">{cart.length}</span>
+          </a>
+        )}
         <a className="btn btn--primary nav__cta" href={site.nav.cta.href}>
           {site.nav.cta.label}
         </a>

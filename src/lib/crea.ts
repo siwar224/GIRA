@@ -1,0 +1,123 @@
+import {
+  allergenLabels,
+  crea,
+  type AllergenId,
+  type CookingId,
+  type ExtraId,
+  type Layer,
+  type PastaId,
+  type PortionId,
+  type RemoveId,
+  type SauceId,
+  type SeafoodId,
+  type SpiceId,
+} from "@/content/crea";
+
+export type Selection = {
+  pasta: PastaId | null;
+  sauce: SauceId;
+  seafood: SeafoodId[]; // in the order they were added (decides their slot on the plate)
+  spice: SpiceId;
+  remove: RemoveId[];
+  extras: ExtraId[];
+  cooking: CookingId;
+  portion: PortionId;
+  note: string;
+};
+
+export const initialSelection: Selection = {
+  pasta: null,
+  sauce: "pomodoro",
+  seafood: [],
+  spice: "medio",
+  remove: [],
+  extras: [],
+  cooking: "aldente",
+  portion: "normale",
+  note: "",
+};
+
+export const plateFor = (pasta: PastaId | null, sauce: SauceId): string | null =>
+  pasta ? (crea.plates[`${pasta}-${sauce}`] ?? null) : null;
+
+/** A pasta is offered only when at least one of its plates exists. */
+export const pastaAvailable = (pasta: PastaId) => crea.sauces.some((s) => plateFor(pasta, s.id));
+
+export const sauceAvailable = (pasta: PastaId | null, sauce: SauceId) => !pasta || plateFor(pasta, sauce) !== null;
+
+/** First sauce that works with a pasta (keeps the current one when possible). */
+export function fitSauce(pasta: PastaId, current: SauceId): SauceId {
+  if (sauceAvailable(pasta, current)) return current;
+  return crea.sauces.find((s) => sauceAvailable(pasta, s.id))?.id ?? current;
+}
+
+const byId = <T extends { id: string }>(list: readonly T[], id: string) => list.find((x) => x.id === id);
+
+export function priceOf(sel: Selection): number {
+  const base = sel.pasta ? (byId(crea.pastas, sel.pasta)?.price ?? 0) : Math.min(...crea.pastas.map((p) => p.price));
+  const sauce = byId(crea.sauces, sel.sauce)?.price ?? 0;
+  const sea = sel.seafood.reduce((sum, id) => sum + (byId(crea.seafood.items, id)?.price ?? 0), 0);
+  const extras = sel.extras.reduce((sum, id) => sum + (byId(crea.extras.items, id)?.price ?? 0), 0);
+  const portion = byId(crea.portion.options, sel.portion)?.price ?? 0;
+  return base + sauce + sea + extras + portion;
+}
+
+export function allergensOf(sel: Selection): AllergenId[] {
+  if (!sel.pasta) return [];
+  const set = new Set<AllergenId>();
+  const add = (list?: readonly AllergenId[]) => list?.forEach((a) => set.add(a));
+  add(byId(crea.pastas, sel.pasta)?.allergens);
+  add(byId(crea.sauces, sel.sauce)?.allergens);
+  sel.seafood.forEach((id) => add(byId(crea.seafood.items, id)?.allergens));
+  sel.extras.forEach((id) => add(byId(crea.extras.items, id)?.allergens));
+  if (!sel.remove.includes("cheese")) set.add("milk");
+  return Object.keys(allergenLabels).filter((a) => set.has(a as AllergenId)) as AllergenId[];
+}
+
+/** "Linguine · Nero di seppia · Prawns & Mussels" */
+export function nameOf(sel: Selection): string {
+  if (!sel.pasta) return "";
+  const parts = [byId(crea.pastas, sel.pasta)?.label, byId(crea.sauces, sel.sauce)?.label];
+  const sea = sel.seafood.map((id) => byId(crea.seafood.items, id)?.label ?? "");
+  if (sea.length) parts.push(sea.length > 1 ? `${sea.slice(0, -1).join(", ")} & ${sea.at(-1)}` : sea[0]);
+  return parts.filter(Boolean).join(" · ");
+}
+
+/** Short kitchen-ticket lines for everything that isn't the default. */
+export function detailsOf(sel: Selection): string[] {
+  const lines: string[] = [];
+  const spice = byId(crea.spice.options, sel.spice);
+  if (spice && sel.spice !== initialSelection.spice) lines.push(spice.label);
+  sel.remove.forEach((id) => lines.push(byId(crea.remove.options, id)?.label ?? id));
+  sel.extras.forEach((id) => lines.push(`+ ${byId(crea.extras.items, id)?.label ?? id}`));
+  if (sel.cooking !== initialSelection.cooking) lines.push(byId(crea.cooking.options, sel.cooking)?.label ?? "");
+  if (sel.portion !== initialSelection.portion) lines.push(byId(crea.portion.options, sel.portion)?.label ?? "");
+  if (sel.note.trim()) lines.push(`“${sel.note.trim()}”`);
+  return lines.filter(Boolean);
+}
+
+export type PlacedLayer = Layer & { key: string; label: string };
+
+/** Everything drawn on top of the pasta, keyed so additions/removals can animate. */
+export function layersOf(sel: Selection): PlacedLayer[] {
+  if (!sel.pasta) return [];
+  const L = crea.layers;
+  const out: PlacedLayer[] = [];
+  if (!sel.remove.includes("cheese")) out.push({ ...L.cheese, key: "cheese", label: "Cheese" });
+  sel.seafood.forEach((id, i) => {
+    const item = byId(crea.seafood.items, id);
+    const slot = crea.seafood.slots[i];
+    if (item && slot) out.push({ ...slot, src: item.img, z: 20 - i, key: `sea-${id}`, label: item.label });
+  });
+  if (sel.extras.includes("burrata")) out.push({ ...L.burrata, key: "burrata", label: "Burrata" });
+  if (sel.extras.includes("extraPrawns")) out.push({ ...L.extraPrawns, key: "extraPrawns", label: "Extra prawns" });
+  const chillies = byId(crea.spice.options, sel.spice)?.chillies ?? 0;
+  if (chillies >= 2) out.push({ ...L.chilli, key: "chilli", label: "Chilli" });
+  if (chillies >= 3) out.push({ ...L.chilliHot, key: "chilliHot", label: "Chilli" });
+  if (!sel.remove.includes("basil")) out.push({ ...L.basil, key: "basil", label: "Basil" });
+  if (sel.extras.includes("bread")) out.push({ ...L.bread, key: "bread", label: "Bread" });
+  return out;
+}
+
+export const formatPrice = (n: number) =>
+  new Intl.NumberFormat("en-GB", { style: "currency", currency: "EUR", minimumFractionDigits: 2 }).format(n);
