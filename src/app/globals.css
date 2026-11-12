@@ -417,18 +417,29 @@ html.lenis body {
     max-width: none;
     pointer-events: none;
   }
+  /*
+   * Wide screens: text sits in the side columns and never enters the centre band where
+   * the pasta lives (the subject spans roughly ±17rem around the middle of the frame).
+   */
+  .hero {
+    --hero-gutter: clamp(1.5rem, 6vw, 7rem);
+    --subject-half: 17rem;
+  }
   .beat {
     position: absolute;
     top: 50%;
-    width: min(34rem, 40vw);
+    width: min(30rem, calc(50vw - var(--subject-half) - var(--hero-gutter) - 1.5rem));
     transform: translateY(-50%);
     pointer-events: auto;
   }
   .beat[data-align="start"] {
-    left: clamp(1.5rem, 6vw, 7rem);
+    left: var(--hero-gutter);
   }
   .beat[data-align="end"] {
-    right: clamp(1.5rem, 6vw, 7rem);
+    right: var(--hero-gutter);
+  }
+  .beat .beat__title {
+    font-size: clamp(2.25rem, 3.4vw, 4.25rem);
   }
   .beat:not(:first-child) {
     opacity: 0;
@@ -438,20 +449,30 @@ html.lenis body {
     text-shadow: 0 2px 30px rgb(74 18 12 / 0.45);
   }
 
-  /* Phones & small tablets: subject is centred, so text sits low over a scrim. */
-  @media (max-width: 767px) {
+  /*
+   * Below 1280px the side columns are too narrow next to the pasta, so the text moves to
+   * the bottom of the screen over a scrim (phones, tablets, small laptops).
+   */
+  @media (max-width: 1279px) {
     .hero__scrim {
-      background: linear-gradient(0deg, rgb(74 18 12 / 0.85) 0%, rgb(74 18 12 / 0.55) 30%, rgb(74 18 12 / 0) 55%);
+      background: linear-gradient(0deg, rgb(74 18 12 / 0.88) 0%, rgb(74 18 12 / 0.6) 30%, rgb(74 18 12 / 0) 58%);
     }
     .beat,
     .beat[data-align="start"],
     .beat[data-align="end"] {
       top: auto;
       bottom: max(4.5rem, 9svh);
-      left: 1.25rem;
-      right: 1.25rem;
+      left: var(--hero-gutter);
+      right: var(--hero-gutter);
       width: auto;
+      max-width: 40rem;
       transform: none;
+    }
+    .beat .beat__title {
+      font-size: clamp(2rem, 5.2vw, 3.25rem);
+    }
+    .hero__badge {
+      display: none;
     }
   }
 
@@ -477,7 +498,7 @@ html.lenis body {
     transform-origin: top;
     animation: hint 2.2s var(--ease-out-soft) infinite;
   }
-  @media (max-width: 767px) {
+  @media (max-width: 1279px) {
     .hero__hint {
       display: none;
     }
