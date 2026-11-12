@@ -77,10 +77,9 @@ export const menu = {
           description: "San Marzano tomato, garlic confit, torn basil, a prawn on top.",
           price: "14",
           image: {
-            src: "/images/spaghetti-pomodoro.webp",
-            alt: "A forkful of spaghetti in tomato sauce topped with a prawn and a basil leaf.",
-            width: 900,
-            height: 900,
+            src: "/images/menu/spaghetti-al-pomodoro.webp",
+            alt: "A plate of spaghetti in tomato sauce topped with basil and grated cheese, fresh tomatoes behind.",
+            ...LANDSCAPE,
           },
         },
         {
