@@ -129,9 +129,9 @@ export const crea = {
     ] as { id: SeafoodId; label: string; price: number; allergens: AllergenId[]; img: string }[],
     /** Where the 1st, 2nd and 3rd seafood land on the plate. */
     slots: [
-      { x: 36, y: 38, w: 21, rotate: -8 },
-      { x: 62, y: 36, w: 21, rotate: 10 },
-      { x: 50, y: 60, w: 22, rotate: -2 },
+      { x: 37, y: 40, w: 32, rotate: -8 },
+      { x: 62, y: 38, w: 32, rotate: 10 },
+      { x: 50, y: 61, w: 33, rotate: -2 },
     ] as Omit<Layer, "src">[],
   },
 
@@ -183,14 +183,16 @@ export const crea = {
 
   /** Garnish layers drawn on top of the pasta. */
   layers: {
-    basil: { src: `${ING}/ing-basil.png`, x: 53, y: 27, w: 15, rotate: 6, z: 30 },
-    cheese: { src: `${ING}/ing-cheese.png`, x: 47, y: 45, w: 17, z: 12 },
-    chilli: { src: `${ING}/ing-chilli.png`, x: 40, y: 55, w: 12, rotate: -12, z: 25 },
-    chilliHot: { src: `${ING}/ing-chilli.png`, x: 60, y: 54, w: 11, rotate: 24, z: 25 },
-    burrata: { src: `${ING}/ing-burrata.png`, x: 55, y: 49, w: 19, z: 22 },
-    extraPrawns: { src: `${ING}/ing-prawns.png`, x: 42, y: 63, w: 17, rotate: 18, z: 21 },
+    // Sizes are generous on purpose: each cut-out PNG has a wide transparent margin,
+    // so w ≈ 2× the visible size of the food. Tuned live against the plates at 1440px.
+    basil: { src: `${ING}/ing-basil.png`, x: 55, y: 25, w: 24, rotate: 6, z: 30 },
+    cheese: { src: `${ING}/ing-cheese.png`, x: 48, y: 46, w: 30, z: 12 },
+    chilli: { src: `${ING}/ing-chilli.png`, x: 36, y: 57, w: 15, rotate: -12, z: 25 },
+    chilliHot: { src: `${ING}/ing-chilli.png`, x: 65, y: 55, w: 14, rotate: 24, z: 25 },
+    burrata: { src: `${ING}/ing-burrata.png`, x: 50, y: 47, w: 25, z: 15 },
+    extraPrawns: { src: `${ING}/ing-prawns.png`, x: 41, y: 64, w: 30, rotate: 18, z: 21 },
     /** Bread sits beside the plate, not on it. */
-    bread: { src: `${ING}/ing-bread.png`, x: 88, y: 78, w: 24, rotate: -6, z: 40 },
+    bread: { src: `${ING}/ing-bread.png`, x: 86, y: 78, w: 32, rotate: -6, z: 40 },
   } satisfies Record<string, Layer>,
 
   summary: {
