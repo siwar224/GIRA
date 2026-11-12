@@ -22,18 +22,10 @@ export const site = {
   scrollHint: "Scroll",
 } as const;
 
-export const intro = {
-  id: "story",
-  eyebrow: "Pasta & Mare",
-  title: "One turn of the fork. The whole sea on the plate.",
-  body: [
-    "At GIRA, the pasta is rolled every morning and the seafood arrives before the doors open. Nothing waits, nothing sits — it all meets in the pan for a few minutes and comes to you still turning.",
-    "The story, the menu and how to find us arrive in the next version of this page.",
-  ],
-} as const;
-
-export const footer = {
-  id: "visit",
-  line: "GIRA · Pasta & Mare",
-  note: "Visit details coming soon.",
+export const seo = {
+  title: "GIRA — Pasta & Mare | Fresh pasta & seafood",
+  description:
+    "Hand-rolled pasta and the morning's catch, twirled to order. See the menu, opening hours and book a table at GIRA — Pasta & Mare.",
+  ogImage: { src: "/og.jpg", width: 1200, height: 630, alt: "A plate of linguine with mussels, prawns and cherry tomatoes." },
+  locale: "en_GB",
 } as const;

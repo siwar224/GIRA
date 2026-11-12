@@ -1,7 +1,40 @@
 import { Nav } from "@/components/site/Nav";
 import { SmoothScroll } from "@/components/site/SmoothScroll";
 import { ScrollStage } from "@/components/hero/ScrollStage";
-import { footer, intro } from "@/content/site";
+import { Marquee } from "@/components/site/Marquee";
+import { Story } from "@/components/site/Story";
+import { Menu } from "@/components/site/Menu";
+import { Quote } from "@/components/site/Quote";
+import { Visit } from "@/components/site/Visit";
+import { site, seo } from "@/content/site";
+import { visit } from "@/content/sections";
+import { siteUrl } from "@/lib/site-url";
+
+const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+/** schema.org Restaurant, built from the same content files as the page. */
+function jsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Restaurant",
+    name: `${site.name} — ${site.tagline}`,
+    description: seo.description,
+    url: siteUrl,
+    image: `${siteUrl}${seo.ogImage.src}`,
+    servesCuisine: ["Italian", "Seafood"],
+    telephone: visit.phone.display,
+    email: visit.email,
+    address: { "@type": "PostalAddress", streetAddress: visit.address.lines.join(", ") },
+    openingHoursSpecification: visit.hours.flatMap((d) =>
+      d.ranges.map(([opens, closes]) => ({
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: DAY_NAMES[d.day],
+        opens,
+        closes,
+      })),
+    ),
+  };
+}
 
 export default function HomePage() {
   return (
@@ -10,26 +43,17 @@ export default function HomePage() {
       <Nav />
       <main id="content">
         <ScrollStage />
-
-        <section id={intro.id} className="intro" data-nav-surface="crema" aria-labelledby="intro-title">
-          <div className="intro__inner">
-            <p className="eyebrow">{intro.eyebrow}</p>
-            <h2 id="intro-title" className="intro__title">
-              {intro.title}
-            </h2>
-            {intro.body.map((p) => (
-              <p key={p} className="intro__body">
-                {p}
-              </p>
-            ))}
-          </div>
-        </section>
+        <Marquee />
+        <Story />
+        <Menu />
+        <Quote />
       </main>
-
-      <footer id={footer.id} className="footer" data-nav-surface="sugo">
-        <p className="footer__line">{footer.line}</p>
-        <p className="footer__note">{footer.note}</p>
-      </footer>
+      <Visit />
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd()).replace(/</g, "\\u003c") }}
+      />
     </>
   );
 }

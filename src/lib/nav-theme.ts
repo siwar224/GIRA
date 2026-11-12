@@ -6,7 +6,7 @@ import { useSyncExternalStore } from "react";
  *  - `surface`: "hero" (transparent over the frames) or a section tint.
  *  - `ink`: "light" text (on red / dark) or "dark" text (on cream).
  */
-export type NavSurface = "hero" | "crema" | "sugo";
+export type NavSurface = "hero" | "crema" | "rosso" | "sugo";
 export type NavInk = "light" | "dark";
 export type NavTheme = { surface: NavSurface; ink: NavInk };
 

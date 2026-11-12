@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter } from "next/font/google";
-import { site } from "@/content/site";
+import { site, seo } from "@/content/site";
+import { siteUrl } from "@/lib/site-url";
 import "./globals.css";
+import "./sections.css";
 
 const serif = Fraunces({
   subsets: ["latin"],
@@ -17,9 +19,28 @@ const sans = Inter({
 });
 
 export const metadata: Metadata = {
-  title: `${site.name} — ${site.tagline}`,
-  description: site.description,
-  icons: { icon: "/brand/gira-icone-app-1024.png" },
+  metadataBase: new URL(siteUrl),
+  title: seo.title,
+  description: seo.description,
+  applicationName: site.name,
+  alternates: { canonical: "/" },
+  icons: { icon: "/brand/gira-icone-app-1024.png", apple: "/brand/gira-icone-app-1024.png" },
+  openGraph: {
+    type: "website",
+    url: "/",
+    siteName: `${site.name} — ${site.tagline}`,
+    title: seo.title,
+    description: seo.description,
+    locale: seo.locale,
+    images: [{ url: seo.ogImage.src, width: seo.ogImage.width, height: seo.ogImage.height, alt: seo.ogImage.alt }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: seo.title,
+    description: seo.description,
+    images: [seo.ogImage.src],
+  },
+  robots: { index: true, follow: true },
 };
 
 export const viewport: Viewport = {
