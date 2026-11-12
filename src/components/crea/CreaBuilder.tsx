@@ -72,36 +72,45 @@ export function CreaBuilder() {
     setWarning("");
   };
 
-  /** Toggle a seafood or extra. `from` = the tile it came from (for the fly-in), null when dropped. */
-  const toggle = useCallback(
-    (item: Draggable, from: Element | null) => {
-      setAdded(false);
-      setSel((s) => {
-        if (!s.pasta) {
-          setWarning(crea.summary.choosePasta);
-          return s;
-        }
-        if (item.kind === "sea") {
-          const has = s.seafood.includes(item.id);
-          if (!has && s.seafood.length >= crea.seafood.max) {
-            setWarning(crea.seafood.maxReached);
-            return s;
-          }
-          setWarning("");
-          const meta = crea.seafood.items.find((x) => x.id === item.id)!;
-          if (!has && from) pendingFly.current = { key: `sea-${item.id}`, from: from.getBoundingClientRect(), src: meta.img };
-          setAnnounce(`${meta.label} ${has ? crea.announce.removed : crea.announce.added}`);
-          return { ...s, seafood: has ? s.seafood.filter((x) => x !== item.id) : [...s.seafood, item.id] };
-        }
-        const has = s.extras.includes(item.id);
-        const meta = crea.extras.items.find((x) => x.id === item.id)!;
-        if (!has && from) pendingFly.current = { key: item.id, from: from.getBoundingClientRect(), src: meta.img };
-        setAnnounce(`${meta.label} ${has ? crea.announce.removed : crea.announce.added}`);
-        return { ...s, extras: has ? s.extras.filter((x) => x !== item.id) : [...s.extras, item.id] };
-      });
-    },
-    [],
-  );
+  // Latest selection, readable from event handlers without stale closures.
+  const selRef = useRef(sel);
+  selRef.current = sel;
+
+  /**
+   * Toggle a seafood or extra. `from` = the tile it came from (for the fly-in), null when dropped.
+   * Side effects stay outside React state updaters: in development React runs updaters twice,
+   * which would add and then remove the ingredient.
+   */
+  const toggle = useCallback((item: Draggable, from: Element | null) => {
+    const s = selRef.current;
+    setAdded(false);
+    if (!s.pasta) {
+      setWarning(crea.summary.choosePasta);
+      return;
+    }
+    if (item.kind === "sea") {
+      const has = s.seafood.includes(item.id);
+      if (!has && s.seafood.length >= crea.seafood.max) {
+        setWarning(crea.seafood.maxReached);
+        return;
+      }
+      setWarning("");
+      const meta = crea.seafood.items.find((x) => x.id === item.id)!;
+      if (!has && from) pendingFly.current = { key: `sea-${item.id}`, from: from.getBoundingClientRect(), src: meta.img };
+      setAnnounce(`${meta.label} ${has ? crea.announce.removed : crea.announce.added}`);
+      const next = { ...s, seafood: has ? s.seafood.filter((x) => x !== item.id) : [...s.seafood, item.id] };
+      selRef.current = next;
+      setSel(next);
+      return;
+    }
+    const has = s.extras.includes(item.id);
+    const meta = crea.extras.items.find((x) => x.id === item.id)!;
+    if (!has && from) pendingFly.current = { key: item.id, from: from.getBoundingClientRect(), src: meta.img };
+    setAnnounce(`${meta.label} ${has ? crea.announce.removed : crea.announce.added}`);
+    const next = { ...s, extras: has ? s.extras.filter((x) => x !== item.id) : [...s.extras, item.id] };
+    selRef.current = next;
+    setSel(next);
+  }, []);
 
   const toggleRemove = (id: RemoveId) =>
     update({ remove: sel.remove.includes(id) ? sel.remove.filter((x) => x !== id) : [...sel.remove, id] });
@@ -154,49 +163,57 @@ export function CreaBuilder() {
   }, [sel]);
 
   // ── Drag & drop (mouse / pen). Touch and keyboard use tap / Enter. ──
+  // The live drag lives in a ref (read by the window listeners); state only drives rendering.
+  const dragRef = useRef<Drag | null>(null);
+
   const onTilePointerDown = (e: ReactPointerEvent<HTMLButtonElement>, item: Draggable, src: string) => {
     if (e.pointerType === "touch" || e.button !== 0 || !sel.pasta) return;
-    setDrag({ item, src, x: e.clientX, y: e.clientY, startX: e.clientX, startY: e.clientY, active: false });
+    e.preventDefault(); // no text selection / native image drag while dragging
+    const d = { item, src, x: e.clientX, y: e.clientY, startX: e.clientX, startY: e.clientY, active: false };
+    dragRef.current = d;
+    setDrag(d);
   };
 
+  const dragging = drag !== null;
   useEffect(() => {
-    if (!drag) return;
+    if (!dragging) return;
     const overPlateAt = (x: number, y: number) => {
       const r = plateRef.current?.getBoundingClientRect();
       return !!r && x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
     };
     const move = (e: PointerEvent) => {
-      setDrag((d) => {
-        if (!d) return d;
-        const active = d.active || Math.hypot(e.clientX - d.startX, e.clientY - d.startY) > 6;
-        return { ...d, x: e.clientX, y: e.clientY, active };
-      });
-      setOverPlate(overPlateAt(e.clientX, e.clientY));
+      const d = dragRef.current;
+      if (!d) return;
+      const active = d.active || Math.hypot(e.clientX - d.startX, e.clientY - d.startY) > 6;
+      const next = { ...d, x: e.clientX, y: e.clientY, active };
+      dragRef.current = next;
+      setDrag(next);
+      setOverPlate(active && overPlateAt(e.clientX, e.clientY));
     };
-    const up = (e: PointerEvent) => {
-      setDrag((d) => {
-        if (d?.active) {
-          suppressClick.current = true;
-          window.setTimeout(() => (suppressClick.current = false), 0);
-          if (overPlateAt(e.clientX, e.clientY)) {
-            const already =
-              d.item.kind === "sea" ? sel.seafood.includes(d.item.id) : sel.extras.includes(d.item.id as ExtraId);
-            if (!already) toggle(d.item, null);
-          }
-        }
-        return null;
-      });
+    const end = (e: PointerEvent, dropped: boolean) => {
+      const d = dragRef.current;
+      dragRef.current = null;
+      setDrag(null);
       setOverPlate(false);
+      if (!d?.active) return; // a plain click: the button's onClick handles it
+      suppressClick.current = true;
+      window.setTimeout(() => (suppressClick.current = false), 0);
+      if (!dropped || !overPlateAt(e.clientX, e.clientY)) return;
+      const s = selRef.current;
+      const already = d.item.kind === "sea" ? s.seafood.includes(d.item.id) : s.extras.includes(d.item.id);
+      if (!already) toggle(d.item, null);
     };
+    const up = (e: PointerEvent) => end(e, true);
+    const cancel = (e: PointerEvent) => end(e, false);
     window.addEventListener("pointermove", move);
-    window.addEventListener("pointerup", up, { once: true });
-    window.addEventListener("pointercancel", up, { once: true });
+    window.addEventListener("pointerup", up);
+    window.addEventListener("pointercancel", cancel);
     return () => {
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", up);
-      window.removeEventListener("pointercancel", up);
+      window.removeEventListener("pointercancel", cancel);
     };
-  }, [drag !== null, sel.seafood, sel.extras, toggle]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [dragging, toggle]);
 
   const onTileClick = (e: React.MouseEvent<HTMLButtonElement>, item: Draggable) => {
     if (suppressClick.current) return;
