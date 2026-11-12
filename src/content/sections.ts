@@ -36,10 +36,10 @@ export const story = {
   },
   image: {
     src: "/images/story-spiral.webp",
-    width: 760,
-    height: 1080,
-    alt: "A spiral of spaghetti in tomato sauce, wrapped around prawns and basil, against a deep red background.",
-    focal: "50% 40%",
+    width: 1080,
+    height: 1350,
+    alt: "A spiral of spaghetti in tomato sauce twisting upward, with prawns, mussels, cherry tomatoes and basil, against a deep red background.",
+    focal: "50% 50%",
   },
 } as const;
 
