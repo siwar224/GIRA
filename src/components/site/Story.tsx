@@ -53,12 +53,12 @@ export function Story() {
           scrollTrigger: { trigger: ".story__plate", start: "top 80%", once: true },
         });
 
-        // Parallax: the photo drifts slower than the page.
+        // Parallax: the whole photo frame drifts slower than the page (the image itself is never cropped).
         gsap.fromTo(
-          ".story__media img",
-          { yPercent: -8 },
+          ".story__media",
+          { y: 60 },
           {
-            yPercent: 8,
+            y: -60,
             ease: "none",
             scrollTrigger: { trigger: ".story__media", start: "top bottom", end: "bottom top", scrub: true },
           },
@@ -104,7 +104,8 @@ export function Story() {
               width={story.image.width}
               height={story.image.height}
               alt={story.image.alt}
-              sizes="(min-width: 1024px) 40vw, 90vw"
+              sizes="(min-width: 640px) 30rem, 100vw"
+              unoptimized
               style={{ objectPosition: story.image.focal }}
             />
           </div>

@@ -132,19 +132,19 @@
   line-height: 1.4;
   color: color-mix(in oklab, var(--color-cozza) 82%, transparent);
 }
+/* The spiral photo is shown whole at its own 941x1672 proportions (no crop). */
 .story__media {
+  width: min(100%, 30rem);
+  margin-inline: auto;
   overflow: hidden;
   border-radius: 1.25rem;
-  aspect-ratio: 4 / 5;
   background: var(--color-rosso);
+  will-change: transform;
 }
 .story__media img {
+  display: block;
   width: 100%;
-  height: 116%;
-  margin-top: -8%;
-  max-width: none;
-  object-fit: cover;
-  will-change: transform;
+  height: auto;
 }
 .story__steps {
   list-style: none;
