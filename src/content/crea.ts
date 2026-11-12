@@ -231,11 +231,8 @@ export const crea = {
     // Sizes are generous on purpose: each cut-out PNG has a wide transparent margin,
     // so w ≈ 2× the visible size of the food. Tuned live against the plates at 1440px.
     basil: { src: `${ING}/ing-basil.png`, x: 64, y: 27, w: 22, rotate: 18, z: 30 },
-    /** Cheese = small sprinkles around the edge of the pasta, never in the middle (the centre belongs to the seafood and burrata). */
-    cheese: { src: `${ING}/ing-cheese.png`, x: 32, y: 50, w: 9, rotate: -10, z: 12, opacity: 0.92 },
-    cheese2: { src: `${ING}/ing-cheese.png`, x: 69, y: 47, w: 8, rotate: 30, z: 12, opacity: 0.9 },
-    cheese3: { src: `${ING}/ing-cheese.png`, x: 37, y: 66, w: 7, rotate: 70, z: 12, opacity: 0.88 },
-    cheese4: { src: `${ING}/ing-cheese.png`, x: 64, y: 67, w: 7, rotate: -40, z: 12, opacity: 0.88 },
+    /** Cheese = one generous pile of grated parmesan, off-centre on the lower left (the centre belongs to the burrata). */
+    cheese: { src: `${ING}/ing-cheese.png`, x: 38, y: 62, w: 22, rotate: -8, z: 12 },
     chilli: { src: `${ING}/ing-chilli.png`, x: 36, y: 57, w: 15, rotate: -12, z: 25 },
     chilliHot: { src: `${ING}/ing-chilli.png`, x: 65, y: 55, w: 14, rotate: 24, z: 25 },
     burrata: { src: `${ING}/ing-burrata.png`, x: 50, y: 47, w: 25, z: 15 },
