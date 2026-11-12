@@ -1,0 +1,17 @@
+logo-colors/gira-icone-app-1024.png
+.history/*
+logo-colors/gira-icone-creme.png
+
+logo-colors/gira-logo-creme.png
+logo-colors/gira-palette.png
+logo-colors/gira-logo-sur-rouge.png
+logo-colors/gira-logo-rouge.png
+
+# deps / build
+node_modules/
+.next/
+.next-verify/
+out/
+*.tsbuildinfo
+next-env.d.ts
+.env*.local

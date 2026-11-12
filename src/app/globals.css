@@ -1,0 +1,518 @@
+@import "tailwindcss";
+
+/* ── GIRA brand tokens ─────────────────────────────────────────────── */
+@theme {
+  --color-rosso: #812116; /* Rosso Mattone — main background, hero */
+  --color-sugo: #4a120c; /* Sugo Profondo — dark sections, footer */
+  --color-pomodoro: #c63a22; /* Pomodoro — hover, accents */
+  --color-crema: #f4e8d4; /* Crema — text on red, light sections */
+  --color-crema-plate: #fae9d1; /* the cream of the final hero frames, for a seamless hand-off */
+  --color-zafferano: #e4a53a; /* Zafferano — buttons, details */
+  --color-basilico: #4e7a3c; /* Basilico — small accents */
+  --color-cozza: #1c1b22; /* Cozza — text on light */
+
+  --font-serif: var(--font-fraunces), "Georgia", serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ── Base ─────────────────────────────────────────────────────────── */
+@layer base {
+  html {
+    background: var(--color-rosso);
+    color: var(--color-crema);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    background: var(--color-rosso);
+    min-height: 100svh;
+    overflow-x: clip;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-zafferano);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* Lenis */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+
+/* ── Shared ───────────────────────────────────────────────────────── */
+.eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 1.4rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s var(--ease-out-soft);
+}
+.btn--primary {
+  background: var(--color-zafferano);
+  color: var(--color-sugo);
+}
+.btn--primary:hover {
+  background: var(--color-crema);
+}
+.btn:active {
+  transform: scale(0.97);
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -100px;
+  z-index: 100;
+  background: var(--color-zafferano);
+  color: var(--color-sugo);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+}
+.skip-link:focus {
+  top: 0.75rem;
+}
+
+/* ── Nav ──────────────────────────────────────────────────────────── */
+.nav {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 50;
+  color: var(--color-crema);
+  transition:
+    transform 0.45s var(--ease-out-soft),
+    background-color 0.4s ease,
+    color 0.3s ease,
+    backdrop-filter 0.4s ease;
+}
+.nav[data-ink="dark"] {
+  color: var(--color-sugo);
+}
+.nav[data-hidden] {
+  transform: translateY(-100%);
+}
+.nav[data-hidden]:focus-within {
+  transform: none;
+}
+/* Over the frames: fully transparent, never a bar hiding the hero. */
+.nav[data-surface="hero"] {
+  background: transparent;
+}
+.nav[data-surface="crema"] {
+  background: color-mix(in oklab, var(--color-crema-plate) 72%, transparent);
+  backdrop-filter: blur(14px) saturate(1.3);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+}
+.nav[data-surface="sugo"] {
+  background: color-mix(in oklab, var(--color-sugo) 70%, transparent);
+  backdrop-filter: blur(14px) saturate(1.3);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+}
+.nav__inner {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  max-width: 88rem;
+  margin: 0 auto;
+  padding: 0.6rem clamp(1rem, 4vw, 3rem);
+}
+.nav__logo {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-right: auto;
+}
+.nav__logo img {
+  height: 34px;
+  width: auto;
+}
+.nav__links {
+  display: none;
+  gap: 0.25rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.nav__links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 0.85rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 999px;
+  transition: background-color 0.2s ease;
+}
+.nav__links a:hover {
+  background: color-mix(in oklab, currentColor 12%, transparent);
+}
+@media (min-width: 768px) {
+  .nav__links {
+    display: flex;
+  }
+  .nav__logo img {
+    height: 40px;
+  }
+}
+.nav__cta {
+  min-height: 44px;
+  padding: 0 1.1rem;
+  font-size: 0.875rem;
+}
+.nav__progress {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 2px;
+  overflow: hidden;
+}
+.nav__progress > span {
+  display: block;
+  height: 100%;
+  background: var(--color-zafferano);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+/* ── Hero ─────────────────────────────────────────────────────────── */
+/* Default (= reduced motion): a static final frame, beats stacked in normal flow. */
+.hero {
+  position: relative;
+  background: var(--color-rosso);
+}
+.hero__poster img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.hero__canvas,
+.hero__scrim,
+.hero__hint,
+.preloader {
+  display: none;
+}
+.hero__beats {
+  display: grid;
+  gap: 3.5rem;
+  padding: 4rem clamp(1.25rem, 6vw, 6rem) 5rem;
+  max-width: 48rem;
+}
+
+.beat__eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--color-zafferano);
+  margin-bottom: 1rem;
+}
+.beat__title {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-variation-settings: "SOFT" 30;
+  font-size: clamp(2.25rem, 5.4vw, 4.75rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.beat__body {
+  margin-top: 1.1rem;
+  max-width: 30rem;
+  font-size: clamp(1rem, 1.25vw, 1.125rem);
+  line-height: 1.6;
+  color: color-mix(in oklab, var(--color-crema) 88%, transparent);
+  text-wrap: pretty;
+}
+.beat .btn {
+  margin-top: 1.75rem;
+}
+
+/* Motion allowed: pinned full-screen stage, beats layered over the canvas. */
+@media (prefers-reduced-motion: no-preference) {
+  .hero__stage {
+    position: relative;
+    height: 100svh;
+    overflow: hidden;
+    background: var(--color-rosso);
+  }
+  .hero__poster img,
+  .hero__canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .hero__poster img {
+    object-fit: cover;
+    object-position: 50% 50%;
+    transition: opacity 0.3s ease;
+  }
+  /* Portrait: match the canvas, which draws wider than the viewport rather than a hard cover crop. */
+  @media (orientation: portrait) {
+    .hero__poster img {
+      inset: 50% auto auto 50%;
+      width: calc(100vw * var(--portrait-factor, 1.9));
+      height: auto;
+      max-width: none;
+      transform: translate(-50%, -50%);
+    }
+  }
+  .hero[data-canvas-live] .hero__poster img {
+    opacity: 0;
+  }
+  .hero__canvas {
+    display: block;
+  }
+
+  .hero__scrim {
+    display: block;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(90deg, rgb(74 18 12 / 0.5) 0%, rgb(74 18 12 / 0) 38%),
+      linear-gradient(270deg, rgb(74 18 12 / 0.5) 0%, rgb(74 18 12 / 0) 38%);
+    transition: opacity 0.4s ease;
+  }
+  .hero[data-light] .hero__scrim {
+    opacity: 0;
+  }
+
+  .hero__beats {
+    position: absolute;
+    inset: 0;
+    display: block;
+    padding: 0;
+    max-width: none;
+    pointer-events: none;
+  }
+  .beat {
+    position: absolute;
+    top: 50%;
+    width: min(34rem, 40vw);
+    transform: translateY(-50%);
+    pointer-events: auto;
+  }
+  .beat[data-align="start"] {
+    left: clamp(1.5rem, 6vw, 7rem);
+  }
+  .beat[data-align="end"] {
+    right: clamp(1.5rem, 6vw, 7rem);
+  }
+  .beat:not(:first-child) {
+    opacity: 0;
+    visibility: hidden;
+  }
+  .beat__title {
+    text-shadow: 0 2px 30px rgb(74 18 12 / 0.45);
+  }
+
+  /* Phones & small tablets: subject is centred, so text sits low over a scrim. */
+  @media (max-width: 767px) {
+    .hero__scrim {
+      background: linear-gradient(0deg, rgb(74 18 12 / 0.85) 0%, rgb(74 18 12 / 0.55) 30%, rgb(74 18 12 / 0) 55%);
+    }
+    .beat,
+    .beat[data-align="start"],
+    .beat[data-align="end"] {
+      top: auto;
+      bottom: max(4.5rem, 9svh);
+      left: 1.25rem;
+      right: 1.25rem;
+      width: auto;
+      transform: none;
+    }
+  }
+
+  .hero__hint {
+    display: flex;
+    position: absolute;
+    left: 50%;
+    bottom: 1.5rem;
+    transform: translateX(-50%);
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.6875rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--color-crema);
+  }
+  .hero__hint::after {
+    content: "";
+    width: 1px;
+    height: 2.5rem;
+    background: linear-gradient(var(--color-crema), transparent);
+    transform-origin: top;
+    animation: hint 2.2s var(--ease-out-soft) infinite;
+  }
+  @media (max-width: 767px) {
+    .hero__hint {
+      display: none;
+    }
+  }
+
+  /* Preloader */
+  .preloader {
+    display: grid;
+    place-items: center;
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    background: var(--color-rosso);
+  }
+  .preloader[data-done] {
+    pointer-events: none;
+  }
+  .preloader__inner {
+    display: grid;
+    justify-items: center;
+    gap: 1.5rem;
+    width: min(18rem, 70vw);
+  }
+  .preloader__logo {
+    width: 100%;
+    height: auto;
+  }
+  .preloader__bar {
+    width: 100%;
+    height: 2px;
+    background: color-mix(in oklab, var(--color-crema) 22%, transparent);
+    overflow: hidden;
+  }
+  .preloader__bar > span {
+    display: block;
+    height: 100%;
+    background: var(--color-zafferano);
+    transform-origin: left center;
+    transition: transform 0.25s ease-out;
+  }
+  .preloader__label {
+    font-size: 0.6875rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: color-mix(in oklab, var(--color-crema) 80%, transparent);
+  }
+}
+
+@keyframes hint {
+  0% {
+    transform: scaleY(0);
+    opacity: 1;
+  }
+  60% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleY(1);
+    opacity: 0;
+  }
+}
+
+/* Reduced motion: no transitions anywhere either. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* ── Intro (placeholder until phase 2) ────────────────────────────── */
+.intro {
+  background: var(--color-crema-plate);
+  color: var(--color-cozza);
+  padding: clamp(5rem, 12vw, 10rem) clamp(1.25rem, 6vw, 6rem);
+}
+.intro__inner {
+  max-width: 46rem;
+  margin: 0 auto;
+}
+.intro .eyebrow {
+  color: var(--color-rosso);
+  margin-bottom: 1.25rem;
+}
+.intro__title {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: clamp(2rem, 4.5vw, 3.75rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--color-rosso);
+  text-wrap: balance;
+  margin-bottom: 2rem;
+}
+.intro__body {
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  margin-top: 1rem;
+  text-wrap: pretty;
+}
+
+/* ── Footer ───────────────────────────────────────────────────────── */
+.footer {
+  background: var(--color-sugo);
+  color: var(--color-crema);
+  padding: 4rem clamp(1.25rem, 6vw, 6rem) 5rem;
+  text-align: center;
+}
+.footer__line {
+  font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+}
+.footer__note {
+  margin-top: 0.75rem;
+  color: color-mix(in oklab, var(--color-crema) 75%, transparent);
+}
+
+/* ── ?debug ───────────────────────────────────────────────────────── */
+.debug-badge {
+  position: fixed;
+  left: 1rem;
+  bottom: 1rem;
+  z-index: 70;
+  padding: 0.4rem 0.7rem;
+  border-radius: 6px;
+  background: var(--color-cozza);
+  color: var(--color-zafferano);
+  font: 600 0.8125rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-variant-numeric: tabular-nums;
+}

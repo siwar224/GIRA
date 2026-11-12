@@ -1,0 +1,15 @@
+{
+  "generatedAt": "2026-11-12T14:27:32.148Z",
+  "basePath": "/frames",
+  "pattern": "f_{n}.webp",
+  "pad": 4,
+  "width": 1920,
+  "height": 1080,
+  "desktop": {
+    "count": 386
+  },
+  "mobile": {
+    "count": 0
+  },
+  "lastFrame": 386
+}

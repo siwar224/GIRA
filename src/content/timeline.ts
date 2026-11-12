@@ -1,0 +1,74 @@
+// Scroll choreography for the hero. 1 unit of timeline time = 1 frame.
+// Frame numbers are 1-based, matching the file names (f_0001.webp …).
+//   c1 → frames   1–120  fork twirl, pasta lifts into a spiral
+//   c2 → frames 121–241  the spiral turns, the sea orbits around it
+//   c3 → frames 242–386  the spiral settles onto the plate (cream background from 376)
+
+export type BeatAlign = "start" | "end";
+
+export type Beat = {
+  id: string;
+  /** Frame where the beat is fully visible. */
+  from: number;
+  /** Frame where the beat starts leaving. */
+  to: number;
+  align: BeatAlign;
+  eyebrow?: string;
+  title: string;
+  body?: string;
+  cta?: { href: string; label: string };
+};
+
+export const heroTimeline = {
+  /** Scroll distance (px) per frame. Higher = slower scrub. */
+  pxPerFrame: 12,
+  /** Extra frames of "hold" at the end so the plate rests before unpinning. */
+  holdFrames: 30,
+  /** Frames over which a beat fades in or out. */
+  fadeFrames: 14,
+  /** From this frame the background is cream: nav switches to dark ink. */
+  lightFromFrame: 376,
+  /** Focal point (0–1) used for cover-fit cropping. */
+  focal: { x: 0.5, y: 0.5 },
+  /** On portrait screens, the frame is drawn this many times the viewport width (cover would crop too much). */
+  portraitWidthFactor: 1.9,
+  beats: [
+    {
+      id: "beat-open",
+      from: 1,
+      to: 80,
+      align: "start",
+      eyebrow: "GIRA · Pasta & Mare",
+      title: "Every great plate begins with a turn.",
+      body: "Fresh pasta, twirled by hand, finished with the sea.",
+    },
+    {
+      id: "beat-twirl",
+      from: 112,
+      to: 190,
+      align: "end",
+      eyebrow: "La pasta",
+      title: "Rolled at dawn. Twirled to order.",
+      body: "Bronze-cut spaghetti, slow tomato sugo and basil picked the same morning.",
+    },
+    {
+      id: "beat-mare",
+      from: 222,
+      to: 290,
+      align: "start",
+      eyebrow: "Il mare",
+      title: "The sea joins the spiral.",
+      body: "Mussels, prawns and sweet cherry tomatoes. In the pan for minutes, never hours.",
+    },
+    {
+      id: "beat-plate",
+      from: 318,
+      to: 362,
+      align: "end",
+      eyebrow: "Gira",
+      title: "From the spiral to your plate.",
+      body: "A small kitchen with one obsession: pasta and the sea, done properly.",
+      cta: { href: "#visit", label: "Book a table" },
+    },
+  ] satisfies Beat[],
+} as const;
