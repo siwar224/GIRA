@@ -794,3 +794,17 @@
     animation: none;
   }
 }
+
+/* Full-plate overlays (cheese dusting): a soft fade, no drop, no shadow. */
+.plate__layer--overlay {
+  animation-name: overlay-in;
+  animation-duration: 0.6s;
+}
+.plate__layer--overlay img {
+  filter: none;
+}
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+  }
+}

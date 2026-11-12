@@ -73,7 +73,7 @@ export function PlateStage({ plateSrc, plateAlt, layers, hiddenKey, dropActive, 
         <span
           key={l.key}
           data-layer={l.key}
-          className="plate__layer"
+          className={l.overlay ? "plate__layer plate__layer--overlay" : "plate__layer"}
           style={{
             left: `${l.x}%`,
             top: `${l.y}%`,
@@ -87,9 +87,9 @@ export function PlateStage({ plateSrc, plateAlt, layers, hiddenKey, dropActive, 
           <Image
             src={l.src}
             alt=""
-            width={600}
-            height={600}
-            sizes="(min-width: 1280px) 16vw, 34vw"
+            width={l.size?.[0] ?? 600}
+            height={l.size?.[1] ?? 600}
+            sizes={l.overlay ? "(min-width: 1280px) 46vw, 92vw" : "(min-width: 1280px) 16vw, 34vw"}
             style={
               l.clip
                 ? { clipPath: l.clip, translate: l.shift ? `${l.shift[0]}% ${l.shift[1]}%` : undefined }

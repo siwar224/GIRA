@@ -28,6 +28,10 @@ export type Layer = {
   clip?: string;
   shift?: [number, number];
   opacity?: number;
+  /** Natural size of the image (default 600×600 cut-outs). */
+  size?: [number, number];
+  /** A full-plate overlay (e.g. the cheese dusting): fades in instead of dropping in. */
+  overlay?: boolean;
 };
 
 /** One whole prawn (the front one) traced out of ing-prawns.png, which holds three. */
@@ -231,8 +235,11 @@ export const crea = {
     // Sizes are generous on purpose: each cut-out PNG has a wide transparent margin,
     // so w ≈ 2× the visible size of the food. Tuned live against the plates at 1440px.
     basil: { src: `${ING}/ing-basil.png`, x: 64, y: 27, w: 22, rotate: 18, z: 30 },
-    /** Cheese = one generous pile of grated parmesan, off-centre on the lower left (the centre belongs to the burrata). */
-    cheese: { src: `${ING}/ing-cheese.png`, x: 38, y: 62, w: 22, rotate: -8, z: 12 },
+    /**
+     * Cheese = grated parmesan dusted over the pasta, like a real plate: a full-plate overlay
+     * built by scripts/make-cheese-dusting.py from real shreds of ing-cheese.png.
+     */
+    cheese: { src: `${ING}/ing-cheese-dusting.png`, x: 50, y: 50, w: 100, z: 11, size: [1448, 1086], overlay: true },
     chilli: { src: `${ING}/ing-chilli.png`, x: 36, y: 57, w: 15, rotate: -12, z: 25 },
     chilliHot: { src: `${ING}/ing-chilli.png`, x: 65, y: 55, w: 14, rotate: 24, z: 25 },
     burrata: { src: `${ING}/ing-burrata.png`, x: 50, y: 47, w: 25, z: 15 },

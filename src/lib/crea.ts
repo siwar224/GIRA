@@ -103,7 +103,7 @@ export function layersOf(sel: Selection): PlacedLayer[] {
   if (!sel.pasta) return [];
   const L = crea.layers;
   const out: PlacedLayer[] = [];
-  // Grated cheese: one generous pile, off-centre, so it never fights the burrata.
+  // Grated cheese: dusted over the pasta (everything else sits on top of it).
   if (!sel.remove.includes("cheese")) out.push({ ...L.cheese, key: "cheese", label: "Cheese" });
   sel.seafood.forEach((id, i) => {
     const item = byId(crea.seafood.items, id);
