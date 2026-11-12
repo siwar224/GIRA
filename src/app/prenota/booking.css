@@ -949,3 +949,26 @@
     transition: none;
   }
 }
+
+/* Plan ↔ "Where to sit" sync messages */
+.field__note {
+  margin-top: 0.6rem;
+  padding: 0.5rem 0.8rem;
+  border-radius: 0.75rem;
+  background: color-mix(in oklab, var(--color-zafferano) 22%, var(--card));
+  font-size: 0.875rem;
+  color: var(--color-sugo);
+}
+.plan__status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  grid-column: 1 / -1;
+  font-size: 0.9375rem;
+  color: var(--ink-soft);
+}
+.plan__status .btn {
+  min-height: 40px;
+  color: var(--color-rosso);
+}

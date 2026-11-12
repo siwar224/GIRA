@@ -80,6 +80,13 @@ export const booking = {
     tooSmall: "Too small for your party",
     tooBig: "Kept for larger parties",
     pickTime: "Choose a time first",
+    /** The plan and "Where to sit" stay in sync. */
+    switched: (area: string) => `Switched "Where to sit" to ${area}.`,
+    switchAndSelect: (area: string) => `Sit here instead (${area})`,
+    otherArea: (area: string) => `This table is in ${area}.`,
+    noneInArea: (area: string, time: string) => `No ${area} table is free for your party at ${time}.`,
+    showAll: "Show all areas",
+    inArea: (area: string, n: number) => `${n} ${area} ${n === 1 ? "table fits" : "tables fit"} your party.`,
   },
 
   /**

@@ -79,6 +79,22 @@ export function BookingFlow() {
       return n;
     });
 
+  /** A table chosen on the plan decides "Where to sit" too — the two never disagree. */
+  const [areaNote, setAreaNote] = useState("");
+  const pickTable = (tableId: string) => {
+    const t = tableById(tableId);
+    if (!t) return;
+    if (s.area && s.area !== t.area) {
+      const label = booking.areas.find((a) => a.id === t.area)?.label ?? t.area;
+      setAreaNote(booking.plan.switched(label));
+    } else setAreaNote("");
+    set({ tableId, area: t.area });
+  };
+  const chooseArea = (area: AreaId | null) => {
+    setAreaNote("");
+    set({ area });
+  };
+
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     const D = booking.details;
@@ -208,13 +224,13 @@ export function BookingFlow() {
             <legend className="field__label">Where to sit?</legend>
             <div className="areas">
               <label className="area area--any" data-checked={!s.area || undefined}>
-                <input type="radio" name="area" className="sr-only" checked={!s.area} onChange={() => set({ area: null })} />
+                <input type="radio" name="area" className="sr-only" checked={!s.area} onChange={() => chooseArea(null)} />
                 <span className="area__any" aria-hidden="true">✦</span>
                 <span className="area__label">{booking.anyArea}</span>
               </label>
               {booking.areas.map((a) => (
                 <label key={a.id} className="area" data-checked={s.area === a.id || undefined}>
-                  <input type="radio" name="area" className="sr-only" checked={s.area === a.id} onChange={() => set({ area: a.id })} />
+                  <input type="radio" name="area" className="sr-only" checked={s.area === a.id} onChange={() => chooseArea(a.id)} />
                   <span className="area__media">
                     <Image src={areaPhoto(a.id)} alt="" width={1448} height={1086} sizes="120px" />
                   </span>
@@ -222,6 +238,11 @@ export function BookingFlow() {
                 </label>
               ))}
             </div>
+            {areaNote && (
+              <p className="field__note" role="status">
+                {areaNote}
+              </p>
+            )}
           </fieldset>
         </div>
 
@@ -259,7 +280,8 @@ export function BookingFlow() {
             guests={s.guests}
             area={s.area}
             value={s.tableId}
-            onChange={(tableId) => set({ tableId })}
+            onChange={pickTable}
+            onShowAll={() => set({ area: null })}
           />
         </div>
       </section>

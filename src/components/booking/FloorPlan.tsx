@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { booking, type AreaId, type Meal } from "@/content/booking";
 import { fits, isTaken, type Table } from "@/lib/booking";
 
@@ -11,7 +11,10 @@ type Props = {
   guests: number;
   area: AreaId | null;
   value: string | null;
+  /** Select a table (also sets "Where to sit" to its area). */
   onChange: (tableId: string) => void;
+  /** Clear the area filter. */
+  onShowAll: () => void;
 };
 
 type TableState = "free" | "taken" | "small" | "big";
@@ -21,7 +24,7 @@ type TableState = "free" | "taken" | "small" | "big";
  * Tables that fit the party and are free at the chosen time glow; tapping one opens its card
  * with the area photo in the same light. Counter seats are highlighted over the real stools.
  */
-export function FloorPlan({ meal, date, time, guests, area, value, onChange }: Props) {
+export function FloorPlan({ meal, date, time, guests, area, value, onChange, onShowAll }: Props) {
   const [focus, setFocus] = useState<string | null>(value);
   const P = booking.plan;
 
@@ -32,12 +35,41 @@ export function FloorPlan({ meal, date, time, guests, area, value, onChange }: P
     return "free";
   };
 
+  const areaLabel = (id: AreaId) => booking.areas.find((a) => a.id === id)?.label ?? id;
+  const freeInArea = area ? booking.tables.filter((t) => t.area === area && stateOf(t) === "free") : [];
+
+  // Choosing an area (or a time) opens the plan on that area: its selected or first free table.
+  useEffect(() => {
+    if (!area) return;
+    const first = booking.tables.find((t) => t.area === area && t.id === value) ?? freeInArea[0];
+    setFocus(first ? first.id : null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [area, time, guests]);
+  useEffect(() => {
+    if (value) setFocus(value);
+  }, [value]);
+
   const shown = booking.tables.find((t) => t.id === focus) ?? null;
   const shownState = shown ? stateOf(shown) : null;
   const shownArea = shown ? booking.areas.find((a) => a.id === shown.area) : null;
 
   return (
     <div className="plan" data-meal={meal} data-locked={!time || undefined}>
+      {area && time && (
+        <div className="plan__status" role="status">
+          {freeInArea.length ? (
+            <p>{P.inArea(areaLabel(area), freeInArea.length)}</p>
+          ) : (
+            <>
+              <p>{P.noneInArea(areaLabel(area), time)}</p>
+              <button type="button" className="btn btn--ghost" onClick={onShowAll}>
+                {P.showAll}
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
       <div className="plan__room" style={{ aspectRatio: `${P.width} / ${P.height}` }}>
         {(["lunch", "dinner"] as Meal[]).map((m) => (
           <Image
@@ -72,7 +104,9 @@ export function FloorPlan({ meal, date, time, guests, area, value, onChange }: P
               disabled={!time}
               onClick={() => {
                 setFocus(t.id);
-                if (st === "free") onChange(t.id);
+                // In the chosen area (or anywhere): select straight away. Another area: show its
+                // card first, so switching "Where to sit" is always a deliberate choice.
+                if (st === "free" && (!area || t.area === area)) onChange(t.id);
               }}
             >
               {!t.counter && (
@@ -109,9 +143,12 @@ export function FloorPlan({ meal, date, time, guests, area, value, onChange }: P
             {value === shown.id ? (
               <p className="plan__card-ok">✓ {P.selected}</p>
             ) : shownState === "free" ? (
-              <button type="button" className="btn btn--primary" onClick={() => onChange(shown.id)}>
-                {P.select}
-              </button>
+              <>
+                {area && shown.area !== area && <p className="plan__card-meta">{P.otherArea(shownArea.label)}</p>}
+                <button type="button" className="btn btn--primary" onClick={() => onChange(shown.id)}>
+                  {area && shown.area !== area ? P.switchAndSelect(shownArea.label) : P.select}
+                </button>
+              </>
             ) : (
               <p className="plan__card-no">
                 {shownState === "taken" ? P.taken : shownState === "small" ? P.tooSmall : P.tooBig}
