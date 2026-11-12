@@ -265,7 +265,8 @@ export const crea = {
   layers: {
     // Sizes are generous on purpose: each cut-out PNG has a wide transparent margin,
     // so w ≈ 2× the visible size of the food. Tuned live against the plates at 1440px.
-    basil: { src: `${ING}/ing-basil.png`, x: 64, y: 27, w: 22, rotate: 18, z: 30 },
+    // Under the seafood (z 18 < 19-21) so a piece the user drops here is never hidden by the garnish.
+    basil: { src: `${ING}/ing-basil.png`, x: 64, y: 27, w: 22, rotate: 18, z: 18 },
     /**
      * Cheese = grated parmesan dusted over the pasta, like a real plate: a full-plate overlay
      * built by scripts/make-cheese-dusting.py from real shreds of ing-cheese.png.

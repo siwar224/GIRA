@@ -339,6 +339,10 @@
   translate: -50% -50%;
   pointer-events: none;
   animation: layer-in 0.55s var(--ease-out-soft) both;
+  /* Moving an ingredient to a new spot glides there. */
+  transition:
+    left 0.4s var(--ease-out-soft),
+    top 0.4s var(--ease-out-soft);
 }
 /*
  * Shadows sit on the (unrotated) wrapper so they always fall the same way, like the plates'

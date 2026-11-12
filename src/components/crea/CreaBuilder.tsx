@@ -22,8 +22,11 @@ import {
   nameOf,
   pastaAvailable,
   plateFor,
+  clampToPlate,
+  placeKey,
   priceOf,
   sauceAvailable,
+  type Point,
   type Selection,
 } from "@/lib/crea";
 import { addToCart, useCart } from "@/lib/cart";
@@ -81,8 +84,11 @@ export function CreaBuilder() {
    * Side effects stay outside React state updaters: in development React runs updaters twice,
    * which would add and then remove the ingredient.
    */
-  const toggle = useCallback((item: Draggable, from: Element | null) => {
+  const toggle = useCallback((item: Draggable, from: Element | null, at?: Point) => {
     const s = selRef.current;
+    const key = placeKey(item);
+    const placements = { ...s.placements };
+    if (at) placements[key] = at;
     setAdded(false);
     if (!s.pasta) {
       setWarning(crea.summary.choosePasta);
@@ -98,7 +104,12 @@ export function CreaBuilder() {
       const meta = crea.seafood.items.find((x) => x.id === item.id)!;
       if (!has && from) pendingFly.current = { key: `sea-${item.id}`, from: from.getBoundingClientRect(), src: meta.img };
       setAnnounce(`${meta.label} ${has ? crea.announce.removed : crea.announce.added}`);
-      const next = { ...s, seafood: has ? s.seafood.filter((x) => x !== item.id) : [...s.seafood, item.id] };
+      if (has) delete placements[key];
+      const next = {
+        ...s,
+        placements,
+        seafood: has ? s.seafood.filter((x) => x !== item.id) : [...s.seafood, item.id],
+      };
       selRef.current = next;
       setSel(next);
       return;
@@ -107,7 +118,8 @@ export function CreaBuilder() {
     const meta = crea.extras.items.find((x) => x.id === item.id)!;
     if (!has && from) pendingFly.current = { key: item.id, from: from.getBoundingClientRect(), src: meta.img };
     setAnnounce(`${meta.label} ${has ? crea.announce.removed : crea.announce.added}`);
-    const next = { ...s, extras: has ? s.extras.filter((x) => x !== item.id) : [...s.extras, item.id] };
+    if (has) delete placements[key];
+    const next = { ...s, placements, extras: has ? s.extras.filter((x) => x !== item.id) : [...s.extras, item.id] };
     selRef.current = next;
     setSel(next);
   }, []);
@@ -199,9 +211,23 @@ export function CreaBuilder() {
       suppressClick.current = true;
       window.setTimeout(() => (suppressClick.current = false), 0);
       if (!dropped || !overPlateAt(e.clientX, e.clientY)) return;
+      // Where on the plate, in % of the plate image (the same units as the layers).
+      const r = plateRef.current!.getBoundingClientRect();
+      const at = clampToPlate({
+        x: ((e.clientX - r.left) / r.width) * 100,
+        y: ((e.clientY - r.top) / r.height) * 100,
+      });
       const s = selRef.current;
       const already = d.item.kind === "sea" ? s.seafood.includes(d.item.id) : s.extras.includes(d.item.id);
-      if (!already) toggle(d.item, null);
+      if (!already) {
+        toggle(d.item, null, at);
+        return;
+      }
+      // Already on the plate: move it to the new spot.
+      const next = { ...s, placements: { ...s.placements, [placeKey(d.item)]: at } };
+      selRef.current = next;
+      setSel(next);
+      setAdded(false);
     };
     const up = (e: PointerEvent) => end(e, true);
     const cancel = (e: PointerEvent) => end(e, false);

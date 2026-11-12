@@ -23,7 +23,24 @@ export type Selection = {
   cooking: CookingId;
   portion: PortionId;
   note: string;
+  /**
+   * Where the user dropped an ingredient on the plate (% of the plate image), keyed by
+   * placeKey(). Without an entry, the ingredient uses its default spot.
+   */
+  placements: Partial<Record<string, Point>>;
 };
+
+export type Point = { x: number; y: number };
+
+/** Key used for placements and plate layers: "sea-prawns", "burrata", … */
+export const placeKey = (item: { kind: "sea" | "extra"; id: string }) =>
+  item.kind === "sea" ? `sea-${item.id}` : item.id;
+
+/** Keep a dropped point on the plate (the rim and the bread corner are fine, the table is not). */
+export const clampToPlate = (p: Point): Point => ({
+  x: Math.min(88, Math.max(12, p.x)),
+  y: Math.min(86, Math.max(14, p.y)),
+});
 
 export const initialSelection: Selection = {
   pasta: null,
@@ -35,6 +52,7 @@ export const initialSelection: Selection = {
   cooking: "aldente",
   portion: "normale",
   note: "",
+  placements: {},
 };
 
 export const plateFor = (pasta: PastaId | null, sauce: SauceId): string | null =>
@@ -107,11 +125,14 @@ export function layersOf(sel: Selection): PlacedLayer[] {
   if (!sel.remove.includes("cheese")) out.push({ ...L.cheese, key: "cheese", label: "Cheese" });
   sel.seafood.forEach((id, i) => {
     const item = byId(crea.seafood.items, id);
-    const slot = crea.seafood.slots[i];
-    if (!item || !slot) return;
+    const defaultSlot = crea.seafood.slots[i];
+    if (!item || !defaultSlot) return;
+    // Dropped by the user? Then it goes exactly where they put it.
+    const placed = sel.placements[`sea-${id}`];
+    const slot = placed ? { ...defaultSlot, ...placed } : defaultSlot;
     if (item.pieces && item.piece) {
       // Several single pieces (e.g. three prawns) fanned around the slot; tighter in the side slots.
-      const spread = i === 0 ? 1 : 0.65;
+      const spread = placed ? 0.75 : i === 0 ? 1 : 0.65;
       item.pieces.forEach((pc, j) =>
         out.push({
           src: pc.src ?? item.piece!,
@@ -129,13 +150,15 @@ export function layersOf(sel: Selection): PlacedLayer[] {
     }
     out.push({ ...slot, src: item.img, z: 20 - i, key: `sea-${id}`, label: item.label });
   });
-  if (sel.extras.includes("burrata")) out.push({ ...L.burrata, key: "burrata", label: "Burrata" });
-  if (sel.extras.includes("extraPrawns")) out.push({ ...L.extraPrawns, key: "extraPrawns", label: "Extra prawns" });
+  const at = (key: string) => sel.placements[key] ?? {};
+  if (sel.extras.includes("burrata")) out.push({ ...L.burrata, ...at("burrata"), key: "burrata", label: "Burrata" });
+  if (sel.extras.includes("extraPrawns"))
+    out.push({ ...L.extraPrawns, ...at("extraPrawns"), key: "extraPrawns", label: "Extra prawns" });
   const chillies = byId(crea.spice.options, sel.spice)?.chillies ?? 0;
   if (chillies >= 2) out.push({ ...L.chilli, key: "chilli", label: "Chilli" });
   if (chillies >= 3) out.push({ ...L.chilliHot, key: "chilliHot", label: "Chilli" });
   if (!sel.remove.includes("basil")) out.push({ ...L.basil, key: "basil", label: "Basil" });
-  if (sel.extras.includes("bread")) out.push({ ...L.bread, key: "bread", label: "Bread" });
+  if (sel.extras.includes("bread")) out.push({ ...L.bread, ...at("bread"), key: "bread", label: "Bread" });
   return out;
 }
 
