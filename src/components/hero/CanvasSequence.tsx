@@ -50,7 +50,7 @@ export function CanvasSequence({ loader, focal, portraitWidthFactor, className, 
 
   const render = (force = false) => {
     const canvas = canvasRef.current;
-    const ctx = canvas?.getContext("2d");
+    const ctx = canvas?.getContext("2d", { alpha: false });
     if (!canvas || !ctx || !loader) return;
     const img = loader.nearest(current.current);
     if (!img || (!force && img === drawn.current)) return;
@@ -73,7 +73,11 @@ export function CanvasSequence({ loader, focal, portraitWidthFactor, className, 
       ctx.fillStyle = sampleEdge(img);
       ctx.fillRect(0, 0, w, h);
     }
-    ctx.drawImage(img, dx, dy, dw, dh);
+    // Highest-quality resampling (the default is "low", which visibly softens scaled frames).
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    // Snap to whole device pixels so the frame isn't resampled across a half-pixel offset.
+    ctx.drawImage(img, Math.round(dx), Math.round(dy), Math.round(dw), Math.round(dh));
 
     if (!firstDrawDone.current) {
       firstDrawDone.current = true;
@@ -98,7 +102,8 @@ export function CanvasSequence({ loader, focal, portraitWidthFactor, className, 
       size.current = { w: rect.width, h: rect.height };
       canvas.width = Math.round(rect.width * dpr);
       canvas.height = Math.round(rect.height * dpr);
-      canvas.getContext("2d")?.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const ctx = canvas.getContext("2d", { alpha: false });
+      ctx?.setTransform(dpr, 0, 0, dpr, 0, 0);
       render(true);
     };
     const ro = new ResizeObserver(resize);

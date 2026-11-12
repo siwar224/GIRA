@@ -1,6 +1,7 @@
 // Counts the hero frames and writes src/data/frames.json.
 // Nothing else in the app hard-codes the frame count.
-import { readdirSync, writeFileSync, mkdirSync } from "node:fs";
+import { readdirSync, writeFileSync, mkdirSync, statSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -16,6 +17,20 @@ function count(dir) {
 }
 
 const desktop = count("desktop");
+
+// Content version: changes whenever the frames change, so immutable caches never serve stale frames.
+function version(dir) {
+  const hash = createHash("sha1");
+  try {
+    const base = join(root, "public", "frames", dir);
+    for (const f of readdirSync(base).filter((f) => FRAME_RE.test(f)).sort()) {
+      hash.update(`${f}:${statSync(join(base, f)).size};`);
+    }
+  } catch {
+    /* no frames */
+  }
+  return hash.digest("hex").slice(0, 10);
+}
 const mobile = count("mobile");
 
 // Optional cut: set LAST_FRAME to stop the sequence early (frames after it are never requested).
@@ -23,7 +38,7 @@ const envLast = Number.parseInt(process.env.LAST_FRAME ?? "", 10);
 const lastFrame = Number.isFinite(envLast) && envLast > 0 ? Math.min(envLast, desktop) : desktop;
 
 const manifest = {
-  generatedAt: new Date().toISOString(),
+  version: version("desktop"),
   basePath: "/frames",
   pattern: "f_{n}.webp",
   pad: 4,
