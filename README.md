@@ -1,0 +1,106 @@
+<div align="center">
+
+<img src="public/brand/gira-logo-rouge.png" alt="GIRA" width="220" />
+
+# GIRA — Pasta & Mare
+
+**Every great plate begins with a turn.**
+
+The website of GIRA, an Italian restaurant for fresh pasta and seafood: a scroll-driven story,
+a build-your-own plate studio and a booking experience that sets your table as you choose.
+
+![Next.js](https://img.shields.io/badge/Next.js-15-000?logo=nextdotjs)
+![React](https://img.shields.io/badge/React-19-149eca?logo=react&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178c6?logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-38bdf8?logo=tailwindcss&logoColor=white)
+![GSAP](https://img.shields.io/badge/GSAP-3.15-0ae448?logo=greensock&logoColor=black)
+
+</div>
+
+![GIRA landing page: a forkful of spaghetti with prawns on a deep red background](docs/screenshots/hero.jpg)
+
+## What's inside
+
+| | |
+|---|---|
+| **The turn** — scroll-scrubbed hero | 376 hand-cut frames drawn to a canvas as you scroll: a forkful of pasta becomes a spiral of the sea and lands as a finished plate. Text beats, breathing light and particles ride on top. |
+| **La nostra storia & menu** | Animated counters, the kitchen's story, and a tabbed menu with a photo for every dish. Signature pastas link straight into the plate builder, already set up. |
+| **Crea il tuo** — build your plate | Pick the pasta, sauce and up to three treasures from the sea, then drag ingredients exactly where you want them on the plate. Live price, allergens and a cart that survives a refresh. |
+| **Prenota** — book a table | Lunch or dinner changes the light. The table is set for your party in real time, a spiral dial turns to your time, and an interactive floor plan lets you pick the exact table. Ends with a ticket and a calendar file. |
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/crea-il-tuo.jpg" alt="Crea il tuo: linguine with prawns, mussels, clams and burrata, with the price and allergens" /></td>
+    <td width="50%"><img src="docs/screenshots/prenota-table.jpg" alt="Booking: a table for two set for dinner, with day, guests and moment pickers" /></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Crea il tuo — your plate, turned your way</sub></td>
+    <td align="center"><sub>Prenota — the table sets itself for your party</sub></td>
+  </tr>
+</table>
+
+![Interactive floor plan with the selected window table highlighted](docs/screenshots/prenota-floor-plan.jpg)
+
+## Built with
+
+- **Next.js 15** (App Router, static rendering) · **React 19** · **TypeScript** (strict)
+- **Tailwind CSS 4** with hand-written design tokens for the GIRA palette
+- **GSAP 3** (ScrollTrigger, SplitText) and **Lenis** for scroll-driven motion
+- No UI kit, no state library: drag and drop, cart and bookings are plain React and `localStorage`
+
+Accessibility is part of the build: real HTML text over every visual, full keyboard support
+(the time dial turns with the arrow keys), visible focus, 44 px touch targets, WCAG AA contrast,
+and `prefers-reduced-motion` respected everywhere.
+
+## Getting started
+
+Requires **Node.js 20+**.
+
+```bash
+npm install
+npm run dev
+```
+
+Open http://localhost:3000.
+
+| Script | What it does |
+|---|---|
+| `npm run dev` | Development server (regenerates the frame manifest first) |
+| `npm run build` | Production build |
+| `npm start` | Serve the production build |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | TypeScript, no emit |
+
+## Project structure
+
+```
+src/
+  app/            routes: / (landing), /crea-il-tuo, /prenota, sitemap, robots
+  components/     hero/, crea/, booking/ and the landing sections
+  content/        every word on the site, plus menu, ingredients, tables and areas
+  lib/            frame loader, pricing, cart, availability, calendar export
+public/
+  frames/         the hero frame sequence
+  crea/           plates and ingredients for the builder
+  book/           tables, props and room views for booking
+scripts/          frame manifest generator and asset helpers
+```
+
+All copy lives in `src/content/*.ts`, so text, prices, opening hours and tables can be
+changed without touching a component.
+
+## Deployment
+
+The site is fully static and deploys to [Vercel](https://vercel.com) with no extra setup:
+import the repository, keep the detected Next.js settings, and deploy.
+
+## Status
+
+Opening hours, address, prices and table availability are demo data for now and will be
+replaced with the restaurant's real information.
+
+## License
+
+The source code is released under the [MIT License](LICENSE).
+The GIRA name, logo, photographs, video frames and illustrations are **not** covered by that
+license — all rights reserved.
