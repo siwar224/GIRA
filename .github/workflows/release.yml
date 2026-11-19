@@ -1,0 +1,94 @@
+name: Release
+
+# Continuous delivery, with a taste before serving.
+#
+# When Vercel finishes a Production build, it is NOT shown to guests yet (Vercel setting:
+# "Auto-assign Custom Production Domains" OFF). This workflow then:
+#   1. checks the new version on its own private address (pages + /api/health),
+#   2. promotes it to the live domain only if everything is healthy,
+#   3. confirms the live site now runs it, and
+#   4. records it as a GitHub Release (v1.0.0, v1.1.0, …) with notes from the merged PRs.
+# If a check fails, nothing is promoted: guests keep the previous version.
+on:
+  deployment_status:
+
+permissions:
+  contents: write # create tags and releases
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Check, go live, release
+    if: >-
+      github.event.deployment_status.state == 'success' &&
+      startsWith(github.event.deployment.environment, 'Production')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DEPLOYMENT_URL: ${{ github.event.deployment_status.environment_url || github.event.deployment_status.target_url }}
+      LIVE_URL: https://gira-lyart.vercel.app
+      SHA: ${{ github.event.deployment.sha }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+      VERCEL_TEAM_ID: ${{ vars.VERCEL_TEAM_ID }}
+      BYPASS: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+    steps:
+      - name: Taste the new version before guests see it
+        run: |
+          set -euo pipefail
+          short="${SHA:0:7}"
+          echo "Checking ${DEPLOYMENT_URL} (commit ${short})"
+          get() { curl -fsS --retry 3 --retry-delay 5 -H "x-vercel-protection-bypass: ${BYPASS}" "$@"; }
+          for page in / /prenota /prenota/gestisci /crea-il-tuo; do
+            get -o /dev/null "${DEPLOYMENT_URL}${page}" && echo "✓ ${page}"
+          done
+          health=$(get "${DEPLOYMENT_URL}/api/health")
+          echo "Health: ${health}"
+          [ "$(jq -r .status <<<"$health")" = "ok" ] || { echo "::error::Health check failed"; exit 1; }
+          [ "$(jq -r .version <<<"$health")" = "$short" ] || { echo "::error::Unexpected version"; exit 1; }
+
+      - name: Go live
+        run: |
+          set -euo pipefail
+          if [ -z "${VERCEL_TOKEN}" ] || [ -z "${VERCEL_PROJECT_ID}" ] || [ -z "${VERCEL_TEAM_ID}" ]; then
+            echo "::error::Set the VERCEL_TOKEN secret and the VERCEL_PROJECT_ID / VERCEL_TEAM_ID variables"; exit 1
+          fi
+          host="${DEPLOYMENT_URL#https://}"
+          id=$(curl -fsS "https://api.vercel.com/v13/deployments/${host}?teamId=${VERCEL_TEAM_ID}" \
+            -H "Authorization: Bearer ${VERCEL_TOKEN}" | jq -r .id)
+          # Already live (auto-assign still on) is fine: the next step checks what guests see.
+          code=$(curl -sS -o /tmp/promote.json -w '%{http_code}' -X POST \
+            "https://api.vercel.com/v10/projects/${VERCEL_PROJECT_ID}/promote/${id}?teamId=${VERCEL_TEAM_ID}" \
+            -H "Authorization: Bearer ${VERCEL_TOKEN}")
+          echo "Promote answered HTTP ${code}"
+
+      - name: Confirm guests now get the new version
+        run: |
+          set -euo pipefail
+          short="${SHA:0:7}"
+          for i in $(seq 1 24); do
+            live=$(curl -fsS "${LIVE_URL}/api/health" | jq -r .version || true)
+            if [ "$live" = "$short" ]; then echo "✓ ${LIVE_URL} is serving ${short}"; exit 0; fi
+            sleep 5
+          done
+          echo "::error::The live site is not serving ${short}"; exit 1
+
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0 # all tags, to number the release
+
+      - name: Record the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if git tag --points-at "${SHA}" | grep -q '^v'; then echo "Already released"; exit 0; fi
+          last=$(git tag --list 'v*' --sort=-v:refname | head -n1)
+          if [ -z "$last" ]; then next="v1.0.0"; else
+            IFS=. read -r major minor _ <<<"${last#v}"; next="v${major}.$((minor + 1)).0"
+          fi
+          gh release create "$next" --target "${SHA}" --title "$next" --generate-notes --latest
+          echo "🏷️ Released $next → ${LIVE_URL}"
