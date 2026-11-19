@@ -18,3 +18,7 @@ next-env.d.ts
 
 # local tooling
 .claude/
+
+# end-to-end tests
+playwright-report/
+test-results/
