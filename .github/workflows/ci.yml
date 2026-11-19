@@ -17,6 +17,12 @@ jobs:
     name: Lint, typecheck, test, build
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      # Database tests (tests/db) run on a temporary Neon branch made for this run and deleted
+      # afterwards. Without these two, they fall back to the TEST_DATABASE_URL secret, and
+      # without that they are skipped (e.g. pull requests from forks, which get no secrets).
+      NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+      NEON_PROJECT_ID: ${{ vars.NEON_PROJECT_ID }}
     steps:
       - uses: actions/checkout@v5
 
@@ -33,12 +39,42 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: Create a temporary database branch
+        id: neon
+        if: env.NEON_API_KEY != '' && env.NEON_PROJECT_ID != ''
+        run: |
+          set -euo pipefail
+          name="ci/run-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          res=$(curl -fsS -X POST "https://console.neon.tech/api/v2/projects/${NEON_PROJECT_ID}/branches" \
+            -H "Authorization: Bearer ${NEON_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d "{\"branch\":{\"name\":\"${name}\"},\"endpoints\":[{\"type\":\"read_write\"}]}")
+          uri=$(jq -r '.connection_uris[0].connection_uri // empty' <<<"$res")
+          id=$(jq -r '.branch.id // empty' <<<"$res")
+          if [ -z "$uri" ] || [ -z "$id" ]; then echo "::error::Neon did not return a branch"; exit 1; fi
+          echo "::add-mask::${uri}"
+          echo "branch_id=${id}" >> "$GITHUB_OUTPUT"
+          echo "TEST_DATABASE_URL=${uri}" >> "$GITHUB_ENV"
+          echo "Created Neon branch ${name}"
+          # The branch's compute starts on first connection: wait until it answers (max ~60 s).
+          for i in $(seq 1 30); do
+            if psql "${uri}" -tAc "SELECT 1" >/dev/null 2>&1; then echo "Database ready"; exit 0; fi
+            sleep 2
+          done
+          echo "::error::The temporary database did not become ready"; exit 1
+
       - name: Test
         run: npm test
         env:
-          # Optional repository secret: a separate Neon branch for the database tests.
-          # Without it those tests are skipped and everything else still runs.
-          TEST_DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+          TEST_DATABASE_URL: ${{ env.TEST_DATABASE_URL || secrets.TEST_DATABASE_URL }}
+
+      - name: Delete the temporary database branch
+        if: always() && steps.neon.outputs.branch_id != ''
+        run: |
+          curl -fsS -X DELETE \
+            "https://console.neon.tech/api/v2/projects/${NEON_PROJECT_ID}/branches/${{ steps.neon.outputs.branch_id }}" \
+            -H "Authorization: Bearer ${NEON_API_KEY}" > /dev/null
+          echo "Deleted the temporary Neon branch"
 
       - name: Build
         run: npm run build
