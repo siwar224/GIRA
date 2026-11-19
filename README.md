@@ -72,6 +72,26 @@ Open http://localhost:3000.
 | `npm run lint` | ESLint |
 | `npm run typecheck` | TypeScript, no emit |
 | `npm run db:migrate` | Apply pending SQL migrations from `db/migrations` |
+| `npm test` | Vitest, once (`npm run test:watch` to keep it running) |
+
+### Tests
+
+```
+tests/
+  lib/      opening hours → slots, table fit, validation schemas
+  server/   HTTP helpers, booking service (database mocked)
+  api/      the three route handlers end to end, service mocked
+  db/       the database's own guarantees, on real Postgres
+```
+
+The `db/` tests prove what the code relies on: overlapping bookings are refused (even two
+inserts racing each other), back-to-back bookings are allowed, codes are unique. They run
+only when `TEST_DATABASE_URL` points at a **separate** Neon branch (create one in the Neon
+console, *Branches → New branch*), inside a throwaway schema that is dropped afterwards.
+
+GitHub Actions runs lint, typecheck, tests and a production build on every push and pull
+request (`.github/workflows/ci.yml`). Add `TEST_DATABASE_URL` as a repository secret to
+include the database tests there too.
 
 ### Database
 
