@@ -95,4 +95,51 @@ export function bookingCancellation(b: BookingEmailData): Email {
   };
 }
 
+// ── Waiting list ──────────────────────────────────────────────────────────────
+
+export type WaitlistEmailData = {
+  to: string;
+  name: string;
+  date: string;
+  meal: "lunch" | "dinner";
+  guests: number;
+};
+
+const mealLabel = (meal: "lunch" | "dinner") => (meal === "lunch" ? "lunch" : "dinner");
+const bookUrl = (w: WaitlistEmailData) =>
+  `${siteUrl}/prenota?${new URLSearchParams({ date: w.date, meal: w.meal, guests: String(w.guests) })}`;
+
+export function waitlistJoined(w: WaitlistEmailData): Email {
+  const when = `${longDate(w.date)} · ${mealLabel(w.meal)}`;
+  const title = "You're on the waiting list.";
+  const intro = "Every table is taken for now. If one frees up, we'll write to you straight away — then it's first come, first served.";
+  const rows: [string, string][] = [
+    ["For", when],
+    ["Guests", String(w.guests)],
+  ];
+  return {
+    to: w.to,
+    subject: `Waiting list — ${when}`,
+    text: textOf(title, intro, rows),
+    html: layout(title, intro, rows),
+  };
+}
+
+export function waitlistTableFree(w: WaitlistEmailData): Email {
+  const when = `${longDate(w.date)} · ${mealLabel(w.meal)}`;
+  const title = `Good news, ${w.name.split(" ")[0]}: a table just freed up.`;
+  const intro = "A table that suits your party is free again. It isn't held for you, so book soon if you'd like it.";
+  const rows: [string, string][] = [
+    ["For", when],
+    ["Guests", String(w.guests)],
+  ];
+  const action = { label: "Book this table", href: bookUrl(w) };
+  return {
+    to: w.to,
+    subject: `A table freed up — ${when}`,
+    text: textOf(title, intro, rows, action),
+    html: layout(title, intro, rows, action),
+  };
+}
+
 export const __test = { escapeHtml };

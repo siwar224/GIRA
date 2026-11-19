@@ -56,12 +56,13 @@ export function nextDays(count: number = booking.date.days, from = new Date()): 
 export const mealOf = (time: string): Meal => (toMin(time) < booking.meal.lunchBefore * 60 ? "lunch" : "dinner");
 
 /** Bookable times for a day and a moment, from the opening hours. */
-export function slotsFor(iso: string, meal: Meal): string[] {
+export function slotsFor(iso: string, meal: Meal, { fromNow = true }: { fromNow?: boolean } = {}): string[] {
   const [y, m, d] = iso.split("-").map(Number) as [number, number, number];
   const weekday = new Date(Date.UTC(y, m - 1, d, 12)).getUTCDay();
   const ranges = visit.hours.find((h) => h.day === weekday)?.ranges ?? [];
-  // Today: only times at least 30 minutes from now (in the restaurant's time zone).
-  const today = nextDays(1)[0]?.iso === iso;
+  // Today: only times at least 30 minutes from now (in the restaurant's time zone) —
+  // for guests booking. The team's view (fromNow: false) shows the whole service.
+  const today = fromNow && nextDays(1)[0]?.iso === iso;
   const earliest = today ? zonedNow(visit.timeZone).minutes + 30 : 0;
   const out: string[] = [];
   for (const [open, close] of ranges) {

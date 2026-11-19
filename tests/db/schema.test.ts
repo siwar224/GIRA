@@ -153,6 +153,25 @@ describe.skipIf(!url)("database schema (TEST_DATABASE_URL)", () => {
     });
   });
 
+  describe("waitlist", () => {
+    const join = (phone: string, meal = "dinner") =>
+      client.query(
+        `INSERT INTO waitlist (day, meal, guests, name, phone) VALUES ('2026-11-28', $1, 2, 'Wait', $2)
+         ON CONFLICT (day, meal, phone) DO NOTHING RETURNING id`,
+        [meal, phone],
+      );
+
+    it("keeps one place per phone per moment", async () => {
+      expect((await join("+33600000001")).rowCount).toBe(1);
+      expect((await join("+33600000001")).rowCount).toBe(0);
+      expect((await join("+33600000001", "lunch")).rowCount).toBe(1); // another moment is another place
+    });
+
+    it("only accepts lunch or dinner", async () => {
+      expect(await pgCode(join("+33600000002", "brunch"))).toBe("23514");
+    });
+  });
+
   describe("newsletter_subscribers", () => {
     it("stores an address once", async () => {
       const add = (email: string) =>

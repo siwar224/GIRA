@@ -129,10 +129,10 @@ describe("GET /api/cron/cleanup", () => {
 
   it("tidies up when Vercel Cron calls with the secret", async () => {
     vi.stubEnv("CRON_SECRET", SECRET);
-    vi.mocked(nightlyTidyUp).mockResolvedValue({ bookings: 3, rateLimits: 7 });
+    vi.mocked(nightlyTidyUp).mockResolvedValue({ bookings: 3, waitlist: 2, rateLimits: 7 });
     vi.spyOn(console, "info").mockImplementation(() => {});
     const res = await call(`Bearer ${SECRET}`);
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ deleted: { bookings: 3, rateLimits: 7 } });
+    expect(await res.json()).toEqual({ deleted: { bookings: 3, waitlist: 2, rateLimits: 7 } });
   });
 });

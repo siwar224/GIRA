@@ -147,16 +147,122 @@ export async function savePreorder(bookingId: string, items: unknown[], totalCen
  * The nightly tidy-up: removes bookings whose evening is over (they ended before today
  * began, in the restaurant's time zone) and rate-limit counters older than a day.
  */
-export async function tidyUp(timeZone: string): Promise<{ bookings: number; rateLimits: number }> {
-  const [bookings, rateLimits] = await db().transaction([
+export async function tidyUp(
+  timeZone: string,
+): Promise<{ bookings: number; waitlist: number; rateLimits: number }> {
+  const [bookings, waitlist, rateLimits] = await db().transaction([
     db()`
       DELETE FROM bookings
       WHERE upper(slot) <= date_trunc('day', now() AT TIME ZONE ${timeZone})
       RETURNING 1
     `,
+    db()`DELETE FROM waitlist WHERE day < (now() AT TIME ZONE ${timeZone})::date RETURNING 1`,
     db()`DELETE FROM rate_limits WHERE window_start < now() - interval '1 day' RETURNING 1`,
   ]);
-  return { bookings: bookings?.length ?? 0, rateLimits: rateLimits?.length ?? 0 };
+  return { bookings: bookings?.length ?? 0, waitlist: waitlist?.length ?? 0, rateLimits: rateLimits?.length ?? 0 };
+}
+
+// ── La sala: one service as the team sees it ──────────────────────────────────
+
+export type ServiceBooking = {
+  code: string;
+  tableId: string;
+  time: string;
+  /** Minutes from the day's midnight; past 1440 when dinner runs after midnight. */
+  startMin: number;
+  endMin: number;
+  guests: number;
+  name: string;
+  phone: string;
+  occasion: string;
+  note: string | null;
+  preorder: unknown;
+};
+
+/** Every booking that starts on this day, with its pre-order. */
+export async function bookingsOnDay(date: string): Promise<ServiceBooking[]> {
+  const rows = await db()`
+    SELECT
+      b.code, b.table_id, b.guests, b.name, b.phone, b.occasion, b.note,
+      to_char(lower(b.slot), 'HH24:MI') AS time,
+      (EXTRACT(EPOCH FROM lower(b.slot) - ${date}::date::timestamp) / 60)::int AS start_min,
+      (EXTRACT(EPOCH FROM upper(b.slot) - ${date}::date::timestamp) / 60)::int AS end_min,
+      p.items AS preorder
+    FROM bookings b
+    LEFT JOIN preorders p ON p.booking_id = b.id
+    WHERE lower(b.slot) >= ${date}::date::timestamp
+      AND lower(b.slot) < (${date}::date + 1)::timestamp
+    ORDER BY lower(b.slot), b.table_id
+  `;
+  return rows.map((r) => ({
+    code: String(r.code),
+    tableId: String(r.table_id),
+    time: String(r.time),
+    startMin: Number(r.start_min),
+    endMin: Number(r.end_min),
+    guests: Number(r.guests),
+    name: String(r.name),
+    phone: String(r.phone),
+    occasion: String(r.occasion),
+    note: r.note ? String(r.note) : null,
+    preorder: r.preorder ?? null,
+  }));
+}
+
+// ── Waiting list ──────────────────────────────────────────────────────────────
+
+export type WaitlistEntry = {
+  id: string;
+  guests: number;
+  name: string;
+  phone: string;
+  email: string | null;
+  createdAt: string;
+  notifiedAt: string | null;
+};
+
+export type NewWaitlistEntry = {
+  date: string;
+  meal: "lunch" | "dinner";
+  guests: number;
+  name: string;
+  phone: string;
+  email: string | null;
+};
+
+/** Adds a guest to a moment's list. Joining twice with the same phone changes nothing. */
+export async function addToWaitlist(e: NewWaitlistEntry): Promise<{ added: boolean }> {
+  const rows = await db()`
+    INSERT INTO waitlist (day, meal, guests, name, phone, email)
+    VALUES (${e.date}::date, ${e.meal}, ${e.guests}, ${e.name}, ${e.phone}, ${e.email})
+    ON CONFLICT (day, meal, phone) DO NOTHING
+    RETURNING id
+  `;
+  return { added: rows.length > 0 };
+}
+
+/** A moment's waiting list, first come first. */
+export async function waitlistFor(date: string, meal: "lunch" | "dinner"): Promise<WaitlistEntry[]> {
+  const rows = await db()`
+    SELECT id::text AS id, guests, name, phone, email, created_at, notified_at
+    FROM waitlist
+    WHERE day = ${date}::date AND meal = ${meal}
+    ORDER BY created_at
+  `;
+  return rows.map((r) => ({
+    id: String(r.id),
+    guests: Number(r.guests),
+    name: String(r.name),
+    phone: String(r.phone),
+    email: r.email ? String(r.email) : null,
+    createdAt: new Date(r.created_at as string | Date).toISOString(),
+    notifiedAt: r.notified_at ? new Date(r.notified_at as string | Date).toISOString() : null,
+  }));
+}
+
+export async function markNotified(ids: string[]): Promise<void> {
+  if (!ids.length) return;
+  await db()`UPDATE waitlist SET notified_at = now() WHERE id = ANY(${ids}::bigint[])`;
 }
 
 /** Postgres error codes the service turns into proper responses. */

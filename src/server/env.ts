@@ -56,6 +56,12 @@ export function emailEnv(): { apiKey: string; from: string } | null {
   return { apiKey, from };
 }
 
+/** The team's password for La sala (/sala). Without it, nobody can sign in. */
+export function staffPassword(): string | null {
+  const password = process.env.STAFF_PASSWORD?.trim();
+  return password && password.length >= 12 ? password : null;
+}
+
 /** Shared secret Vercel Cron sends as "Authorization: Bearer …". Without it the job refuses to run. */
 export function cronSecret(): string | null {
   const secret = process.env.CRON_SECRET?.trim();

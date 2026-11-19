@@ -5,6 +5,7 @@ import { cancelBooking, lookupBooking, maskEmail, placePreorder, pricePlates, sa
 import { deleteBooking, findByCode, getPreorder, savePreorder, type StoredBooking } from "@/server/bookings/repo";
 import { emailEnabled, sendEmail } from "@/server/email";
 import { ApiError } from "@/server/http";
+import { notifyWaitlist } from "@/server/waitlist";
 
 vi.mock("@/server/env", () => ({ serverEnv: vi.fn(), emailEnv: vi.fn(() => null) }));
 vi.mock("@/server/email", () => ({
@@ -12,6 +13,7 @@ vi.mock("@/server/email", () => ({
   sendEmail: vi.fn(async () => true),
   runAfterResponse: vi.fn((task: () => Promise<unknown>) => void task()),
 }));
+vi.mock("@/server/waitlist", () => ({ notifyWaitlist: vi.fn(async () => 0) }));
 vi.mock("@/server/bookings/repo", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/server/bookings/repo")>()),
   findByCode: vi.fn(),
@@ -111,6 +113,11 @@ describe("cancelBooking", () => {
     await cancelBooking(CODE, stored.phone);
     expect(deleteBooking).toHaveBeenCalledWith("42");
     expect(sendEmail).toHaveBeenCalledWith(expect.objectContaining({ to: "giulia@example.com" }));
+  });
+
+  it("tells the waiting list for that moment that a table freed up", async () => {
+    await cancelBooking(CODE, stored.phone);
+    expect(notifyWaitlist).toHaveBeenCalledWith("2026-11-21", "dinner");
   });
 
   it("refuses a booking in the past", async () => {

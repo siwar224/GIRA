@@ -79,6 +79,17 @@ Plans change, appetites grow. With just your booking code and phone number — n
 password — you can find your booking, send the plates you built to the kitchen so they're ready
 when you sit down, or cancel and free the table for someone else.
 
+And when every table is taken? Join the **waiting list**. The moment someone cancels, the first
+guests waiting are told by email that a table has freed up.
+
+### 6 · La sala — the room, from the other side
+
+The team has its own view of the evening: the same room guests choose their table in, seen from
+behind the pass. As the service moves through the evening, each table lights up with who is
+sitting there, how many, the occasion — a birthday, an anniversary — and whether plates were
+pre-ordered. One tap shows the details and the dishes the kitchen should have ready. The waiting
+list sits alongside, so a freed table never stays empty for long.
+
 ---
 
 ## What makes it special
@@ -103,7 +114,7 @@ The site is made to be trusted, not just admired. Every change goes through the 
 guest ever sees it:
 
 1. **Proposed** on its own branch, never straight to the live site.
-2. **Checked automatically** — more than 110 tests, including the "two guests, one table" case
+2. **Checked automatically** — more than 130 tests, including the "two guests, one table" case
    on a real database.
 3. **Previewed** on its own private copy of the site *and* of the database, so testing never
    touches real bookings.
@@ -141,9 +152,9 @@ npm run dev                  # http://localhost:3000
 
 ## What's next
 
-- **The kitchen's view** — tonight's tables and pre-orders on one screen for the team
-- **A waiting list** — when a moment is full, be told if a table frees up
-- **Reminders** — a short note on the morning of your booking
+- **Reminders** — a short note on the morning of your booking, with a one-tap way to cancel
+- **La sala, live** — tables that change the moment guests arrive, marked by the team as they sit
+- **A menu that changes with the market** — today's catch, updated by the kitchen itself
 
 Opening hours, address, prices and tables are demonstration content for now.
 
