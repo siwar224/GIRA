@@ -85,6 +85,27 @@ Bookings and newsletter sign-ups are stored in [Neon](https://neon.com) Postgres
 Database access lives in `src/server/` and is marked `server-only`: importing it from a
 client component fails the build, so connection strings can never reach the browser.
 
+Also set `RATE_LIMIT_SALT` (a random secret, see `.env.example`) and `DEMO_OCCUPANCY`
+in `.env.local` and in the Vercel project's environment variables.
+
+## API
+
+| Method | Path | What it does |
+|---|---|---|
+| `GET` | `/api/availability?date=YYYY-MM-DD` | Every bookable time of the day and the tables already held then |
+| `POST` | `/api/bookings` | Books a table; the server re-checks hours, party size and the table, then issues the code |
+
+- **No double bookings.** A Postgres exclusion constraint forbids two bookings of the same
+  table with overlapping times (each booking holds its table for 2 hours), so two guests
+  pressing "Confirm" at the same instant can't both win: the second gets `409 table_taken`.
+- **Validation twice.** The same zod schemas (`src/lib/schemas.ts`) check the form in the
+  browser and every request on the server.
+- **Protection.** Writes must come from the site's own origin, bodies are size-capped JSON,
+  a honeypot field catches bots, and requests are rate-limited per client (salted IP hash,
+  no raw IPs stored).
+- **One error shape.** `{ "error": { "code", "message", "fields"? } }` with the right status:
+  `403`, `409`, `413`, `415`, `422`, `429` (with `Retry-After`), `500`.
+
 ## Project structure
 
 ```

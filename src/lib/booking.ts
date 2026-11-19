@@ -92,17 +92,25 @@ function hash01(s: string): number {
 }
 
 /**
- * DEMO availability (frontend only): a stable, believable pattern — busier at peak dinner
- * times and at weekends — plus anything already booked in this browser.
+ * DEMO occupancy: a stable, believable pattern — busier at peak dinner times and at
+ * weekends. Pure, so the server can apply the very same pattern (DEMO_OCCUPANCY=true).
  */
-export function isTaken(tableId: string, iso: string, time: string): boolean {
-  if (bookedLocally().some((b) => b.tableId === tableId && b.date === iso && b.time === time)) return true;
+export function demoTaken(tableId: string, iso: string, time: string): boolean {
   const [y, m, d] = iso.split("-").map(Number) as [number, number, number];
   const weekend = [5, 6, 0].includes(new Date(Date.UTC(y, m - 1, d, 12)).getUTCDay());
   const t = toMin(time);
   const peak = t >= toMin("19:30") && t <= toMin("20:30") ? 0.25 : t >= toMin("12:30") && t <= toMin("13:00") ? 0.15 : 0;
   return hash01(`${tableId}|${iso}|${time}`) < 0.22 + peak + (weekend ? 0.12 : 0);
 }
+
+/** DEMO availability (frontend only, until it reads /api/availability): the pattern above plus this browser's bookings. */
+export function isTaken(tableId: string, iso: string, time: string): boolean {
+  if (bookedLocally().some((b) => b.tableId === tableId && b.date === iso && b.time === time)) return true;
+  return demoTaken(tableId, iso, time);
+}
+
+/** Minutes since midnight, "19:30" → 1170. */
+export const minutesOf = toMin;
 
 export type SlotStatus = "available" | "almost" | "full";
 
