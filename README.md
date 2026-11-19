@@ -186,6 +186,10 @@ npm run dev                  # http://localhost:3000
 | `npm run build` | Production build |
 | `npm run db:migrate` | Apply database migrations |
 
+On Vercel, the database looks after itself: every deployment applies new migrations before it
+is built — production to the main database, and each preview to its own Neon branch — and a
+migration that fails stops the deploy instead of shipping code against an old schema.
+
 Every setting is described in [`.env.example`](.env.example) — emails and the nightly tidy-up
 are optional and switch on when their keys are set. Secrets stay on the server and never reach
 the browser.
