@@ -3,6 +3,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Verification builds go to a separate folder so they never clobber the dev server.
   distDir: process.env.NEXT_DIST_DIR || ".next",
+  // The Docker image (Dockerfile) builds a self-contained server; Vercel builds as usual.
+  output: process.env.NEXT_OUTPUT === "standalone" ? "standalone" : undefined,
   reactStrictMode: true,
   async headers() {
     return [
