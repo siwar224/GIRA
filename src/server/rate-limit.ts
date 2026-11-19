@@ -17,6 +17,8 @@ export const LIMITS = {
   availability: { name: "availability", max: 60, windowSeconds: 60 },
   createBooking: { name: "bookings:create", max: 5, windowSeconds: 600 },
   newsletter: { name: "newsletter", max: 5, windowSeconds: 600 },
+  /** Looking up, cancelling and pre-ordering: generous for a guest, useless for guessing codes. */
+  manageBooking: { name: "bookings:manage", max: 20, windowSeconds: 600 },
 } as const satisfies Record<string, Limit>;
 
 /**

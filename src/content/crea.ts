@@ -110,7 +110,7 @@ export const crea = {
     {
       id: "bianco",
       label: "Bianco",
-      note: "White wine & garlic",
+      note: "Garlic, olive oil & parsley",
       price: 1,
       allergens: ["sulphites"],
       icon: "/crea/icons/icon-sauce-bianco.png",
@@ -290,7 +290,8 @@ export const crea = {
     from: "from",
     addToCart: "Add to order",
     added: "Added to your order",
-    addedBody: "Your plate is in the order. Pickup and checkout arrive with the next version of the site.",
+    addedBody: "Your plate is in the order. Booked a table? Send it with your booking and it'll be ready when you sit down.",
+    sendWithBooking: "Send with my booking",
     another: "Create another",
     inOrder: "in your order",
   },

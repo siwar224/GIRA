@@ -197,7 +197,13 @@ export function BookingFlow() {
     setSubmitting(true);
     try {
       const confirmed = await createBooking(input);
-      setSaved({ ...s, name: confirmed.name, code: confirmed.code, createdAt: Date.parse(confirmed.createdAt) });
+      setSaved({
+        ...s,
+        name: confirmed.name,
+        code: confirmed.code,
+        createdAt: Date.parse(confirmed.createdAt),
+        emailSent: confirmed.emailSent,
+      });
       refresh();
       window.scrollTo({ top: 0 });
     } catch (ex) {

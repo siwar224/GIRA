@@ -11,6 +11,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import { gsap } from "@/lib/gsap";
+import { booking } from "@/content/booking";
 import { allergenLabels, crea, type ExtraId, type PastaId, type RemoveId, type SeafoodId } from "@/content/crea";
 import {
   allergensOf,
@@ -626,6 +627,9 @@ export function CreaBuilder() {
               <button type="button" className="btn btn--primary" onClick={startOver}>
                 {crea.summary.another}
               </button>
+              <Link href={booking.manage.href} className="btn btn--ghost">
+                {crea.summary.sendWithBooking}
+              </Link>
               <Link href="/#menu" className="btn btn--ghost">
                 {crea.page.backToMenu}
               </Link>

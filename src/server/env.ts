@@ -43,3 +43,21 @@ export function serverEnv(): ServerEnv {
   };
   return cached;
 }
+
+// ── Optional features: each one simply switches off when its variables are missing ──
+
+/** Resend (confirmation emails). Without a key, bookings work and no email is sent. */
+export function emailEnv(): { apiKey: string; from: string } | null {
+  const apiKey = process.env.RESEND_API_KEY?.trim();
+  if (!apiKey) return null;
+  // Resend's shared test sender only delivers to the account's own address; set EMAIL_FROM
+  // to an address on a domain verified in Resend to email guests.
+  const from = process.env.EMAIL_FROM?.trim() || "GIRA <onboarding@resend.dev>";
+  return { apiKey, from };
+}
+
+/** Shared secret Vercel Cron sends as "Authorization: Bearer …". Without it the job refuses to run. */
+export function cronSecret(): string | null {
+  const secret = process.env.CRON_SECRET?.trim();
+  return secret && secret.length >= 16 ? secret : null;
+}

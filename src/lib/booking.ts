@@ -122,7 +122,7 @@ export function slotStatus(iso: string, time: string, guests: number, area: Area
 export const tableById = (id: string | null) => booking.tables.find((t) => t.id === id) ?? null;
 
 /** A booking the server has confirmed, as the ticket shows it. */
-export type SavedBooking = BookingState & { code: string; createdAt: number };
+export type SavedBooking = BookingState & { code: string; createdAt: number; emailSent?: boolean };
 
 /** A downloadable .ics calendar entry (local time in the restaurant's zone). */
 export function icsFor(b: SavedBooking): string {

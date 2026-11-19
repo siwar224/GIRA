@@ -4,11 +4,17 @@ import { demoTaken, slotsFor } from "@/lib/booking";
 import { bookingRequest } from "@/lib/schemas";
 import { heldOnDay, insertBooking } from "@/server/bookings/repo";
 import { createBooking, getAvailability } from "@/server/bookings/service";
+import { emailEnabled, sendEmail } from "@/server/email";
 import { serverEnv } from "@/server/env";
 import { ApiError } from "@/server/http";
 import { freezeAt, MONDAY, TUESDAY, validBooking } from "../helpers";
 
-vi.mock("@/server/env", () => ({ serverEnv: vi.fn() }));
+vi.mock("@/server/env", () => ({ serverEnv: vi.fn(), emailEnv: vi.fn(() => null) }));
+vi.mock("@/server/email", () => ({
+  emailEnabled: vi.fn(() => false),
+  sendEmail: vi.fn(async () => true),
+  runAfterResponse: vi.fn((task: () => Promise<unknown>) => void task()),
+}));
 vi.mock("@/server/bookings/repo", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/server/bookings/repo")>()),
   heldOnDay: vi.fn(),
@@ -35,6 +41,7 @@ const failure = async (p: Promise<unknown>) => {
 beforeEach(() => {
   freezeAt();
   env();
+  vi.mocked(emailEnabled).mockReturnValue(false);
   vi.mocked(heldOnDay).mockResolvedValue([]);
   vi.mocked(insertBooking).mockResolvedValue({ createdAt: "2026-11-17T08:00:00.000Z" });
 });
@@ -83,6 +90,23 @@ describe("createBooking", () => {
     expect(insertBooking).toHaveBeenCalledWith(
       expect.objectContaining({ code: b.code, meal: "dinner", durationMinutes: booking.durationMinutes, email: "giulia@example.com" }),
     );
+  });
+
+  it("emails a confirmation when the guest gave an address and email is set up", async () => {
+    vi.mocked(emailEnabled).mockReturnValue(true);
+    const b = await createBooking(request());
+    expect(b.emailSent).toBe(true);
+    expect(sendEmail).toHaveBeenCalledWith(
+      expect.objectContaining({ to: "giulia@example.com", subject: expect.stringContaining(b.code) }),
+    );
+  });
+
+  it("sends nothing without an address, or when email isn't set up", async () => {
+    vi.mocked(emailEnabled).mockReturnValue(true);
+    expect((await createBooking(request({ email: "" }))).emailSent).toBe(false);
+    vi.mocked(emailEnabled).mockReturnValue(false);
+    expect((await createBooking(request())).emailSent).toBe(false);
+    expect(sendEmail).not.toHaveBeenCalled();
   });
 
   it.each([

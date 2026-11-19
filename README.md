@@ -4,29 +4,54 @@
 
 # GIRA — Pasta & Mare
 
-**Every great plate begins with a turn.**
+### Every great plate begins with a turn.
 
-The website of GIRA, an Italian restaurant for fresh pasta and seafood: a scroll-driven story,
-a build-your-own plate studio and a booking experience that sets your table as you choose.
+A restaurant website that feels like walking through the door:
+a story told by scrolling, a plate you build with your own hands,
+and a table that is set for you — and kept for you — the moment you book it.
 
+**[Visit the live site →](https://YOUR-LIVE-URL)**
+
+[![CI](https://github.com/siwar224/GIRA/actions/workflows/ci.yml/badge.svg)](https://github.com/siwar224/GIRA/actions/workflows/ci.yml)
 ![Next.js](https://img.shields.io/badge/Next.js-15-000?logo=nextdotjs)
 ![React](https://img.shields.io/badge/React-19-149eca?logo=react&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178c6?logo=typescript&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-38bdf8?logo=tailwindcss&logoColor=white)
-![GSAP](https://img.shields.io/badge/GSAP-3.15-0ae448?logo=greensock&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/Neon-Postgres-00e599?logo=postgresql&logoColor=white)
+![Vercel](https://img.shields.io/badge/Deployed_on-Vercel-000?logo=vercel)
 
 </div>
 
 ![GIRA landing page: a forkful of spaghetti with prawns on a deep red background](docs/screenshots/hero.jpg)
 
-## What's inside
+---
 
-| | |
-|---|---|
-| **The turn** — scroll-scrubbed hero | 376 hand-cut frames drawn to a canvas as you scroll: a forkful of pasta becomes a spiral of the sea and lands as a finished plate. Text beats, breathing light and particles ride on top. |
-| **La nostra storia & menu** | Animated counters, the kitchen's story, and a tabbed menu with a photo for every dish. Signature pastas link straight into the plate builder, already set up. |
-| **Crea il tuo** — build your plate | Pick the pasta, sauce and up to three treasures from the sea, then drag ingredients exactly where you want them on the plate. Live price, allergens and a cart that survives a refresh. |
-| **Prenota** — book a table | Lunch or dinner changes the light. The table is set for your party in real time, a spiral dial turns to your time, and an interactive floor plan lets you pick the exact table. Availability is live and every booking is saved on the server. Ends with a ticket and a calendar file. |
+## The story
+
+GIRA is a small Italian kitchen built around a single idea: **pasta rolled that morning, seafood
+bought at the market at six, and a pan hot enough to bring them together in minutes.** Twelve
+shapes rolled by hand. Forty seats, never more.
+
+A place like that doesn't need a website that lists things. It needs one that *feels* like it —
+warm, unhurried, a little theatrical, and completely reliable when you ask it to hold your table.
+That became the brief, and every part of the site follows a guest through one evening.
+
+### 1 · The turn
+
+You arrive, and a forkful of pasta begins to spin. As you scroll, it turns into a spiral of the
+sea and lands on your screen as a finished plate — 376 hand-prepared frames, played at the speed
+of your hand. The name *Gira* means "it turns", and the whole brand lives in that one motion.
+
+### 2 · The kitchen
+
+The story of the kitchen unfolds next: the flour, the bronze dies, the morning market. Then the
+menu, a photo for every dish — and each signature pasta carries a quiet invitation:
+*make it yours*.
+
+### 3 · Crea il tuo — your plate
+
+Choose a pasta, a sauce and up to three treasures from the sea, then drag each ingredient exactly
+where you want it on the plate. The price and the allergens follow every choice, live, because a
+guest should never have to ask.
 
 <table>
   <tr>
@@ -39,130 +64,150 @@ a build-your-own plate studio and a booking experience that sets your table as y
   </tr>
 </table>
 
+### 4 · Prenota — your table
+
+Booking is not a form; it is the moment you set your own table. Pick lunch or dinner and the light
+changes. Add a guest and a new place setting appears. Turn a spiral dial to your time, then choose
+the exact table on a floor plan of the room — by the window, at the chef's counter, or on the
+terrace under the olive trees. You leave with a ticket, a booking code and a calendar entry —
+and a confirmation is already waiting in your inbox.
+
 ![Interactive floor plan with the selected window table highlighted](docs/screenshots/prenota-floor-plan.jpg)
 
-## Built with
+### 5 · Before the evening — your booking, in your hands
 
-- **Next.js 15** (App Router, static rendering) · **React 19** · **TypeScript** (strict)
-- **Tailwind CSS 4** with hand-written design tokens for the GIRA palette
-- **GSAP 3** (ScrollTrigger, SplitText) and **Lenis** for scroll-driven motion
-- No UI kit, no state library: drag and drop and the cart are plain React and `localStorage`
-- **Next.js Route Handlers** (Vercel Functions) · **Neon Postgres** · **zod** for bookings and the newsletter
+Plans change, appetites grow. With nothing more than your booking code and the phone number you
+booked with — no account, no password — you can find your booking again, send the plates you built
+in *Crea il tuo* to the kitchen so they're ready when you sit down, or cancel and free the table
+for someone else. Nothing is paid online; the restaurant prices every plate itself.
 
-Accessibility is part of the build: real HTML text over every visual, full keyboard support
-(the time dial turns with the arrow keys), visible focus, 44 px touch targets, WCAG AA contrast,
-and `prefers-reduced-motion` respected everywhere.
+### 6 · Behind the door — a promise that holds
 
-## Getting started
+The first version of GIRA was all front of house: beautiful, but its bookings only lived in your
+own browser. Two guests could "book" the same table, and the restaurant would never know.
 
-Requires **Node.js 20+**.
+So the project grew a real back of house. Availability now comes from a live database; every
+booking is checked by the server and stored; the booking code is issued by the restaurant, not the
+browser; confirmations go out by email; pre-orders reach the kitchen; and every night the restaurant
+quietly forgets the evening that has passed. The experience on screen barely changed —
+**it simply started telling the truth.**
+
+---
+
+## What makes it work
+
+**One table, one guest — guaranteed.**
+If two people press *Confirm* on the same table at the same instant, exactly one of them gets it.
+That rule isn't left to application code and good timing: it is written into the database itself,
+which refuses any two bookings that overlap. The other guest is told kindly, and the floor plan
+refreshes so they can pick again.
+
+**A table is held for the whole meal.**
+Each booking keeps its table for two hours, so a 19:30 reservation also blocks 20:00 and 21:00 —
+and frees it again at 21:30, exactly when the first party leaves.
+
+**Checked twice, written once.**
+The same set of rules checks your details in the browser — instant feedback, no waiting — and
+again on the server, which never trusts what it receives.
+
+**Priced by the kitchen, not the browser.**
+A pre-order carries only the plates you chose. Every price is worked out again on the server from
+the menu itself, so the bill can't be edited from a browser.
+
+**Yours, without an account.**
+A random booking code plus your phone number is all it takes to find, change or cancel a booking.
+A wrong guess gets the same polite "not found" either way, so nobody can fish for other people's
+bookings.
+
+**Nothing lingers.**
+Every night a scheduled job clears the bookings (and pre-orders) of evenings that are over, so guest
+details are kept only as long as they are useful.
+
+**Respectful by design.**
+No address is ever stored as-is for rate limiting, bots are caught without making people solve
+puzzles, personal details never appear in logs, and the site never reveals whether an email is
+already on the newsletter.
+
+**Built for everyone.**
+Every visual has real text underneath, the whole journey works from the keyboard (the time dial
+turns with the arrow keys), contrast meets WCAG AA, touch targets are generous, and every
+animation steps aside for visitors who prefer reduced motion.
+
+**Content apart from code.**
+Every word, price, opening hour and table lives in one content layer, so the restaurant can change
+its menu without touching a component.
+
+---
+
+## Technology
+
+| Layer | Technology | Why it's here |
+|---|---|---|
+| **Experience** | Next.js 15 · React 19 | Pages are pre-rendered and served from the edge: the story loads instantly, anywhere |
+| **Language** | TypeScript (strict) | One typed language from the button to the database query |
+| **Design** | Tailwind CSS 4 · hand-made design tokens | The GIRA palette and typography, applied with precision, no UI kit |
+| **Motion** | GSAP 3 · Lenis | Scroll-driven storytelling, smooth and frame-accurate |
+| **API** | Next.js Route Handlers on Vercel Functions | A lightweight REST API that scales to zero when the room is quiet |
+| **Data** | Neon serverless PostgreSQL | Real relational guarantees — the no-double-booking rule lives here |
+| **Validation** | zod | One set of rules, shared by the browser and the server |
+| **Email** | Resend | Branded confirmation and cancellation emails, sent after the response so nobody waits |
+| **Scheduling** | Vercel Cron | The nightly tidy-up of past bookings |
+| **Quality** | Vitest · ESLint · GitHub Actions | 110+ automated tests, including real concurrency checks against Postgres, on every push |
+| **Hosting** | Vercel · Neon free tiers | Production-grade, and free to run at portfolio scale |
+
+```mermaid
+flowchart LR
+  G([Guest]) --> P[Static pages<br/>served from the edge]
+  P -- availability · bookings · pre-orders · newsletter --> A[REST API<br/>Vercel Functions]
+  A -- validated queries --> D[(Neon PostgreSQL<br/>bookings · pre-orders · subscribers)]
+  A -- confirmations --> E[Resend<br/>email]
+  C[Vercel Cron<br/>every night] -- tidy-up --> A
+```
+
+---
+
+## Run it locally
+
+You'll need **Node.js 20+** and a free [Neon](https://neon.com) database
+(on Vercel: *Storage → Neon → Create*, then connect it to the project).
 
 ```bash
 npm install
-npm run dev
+cp .env.example .env.local   # then fill in the values
+npm run db:migrate           # creates or updates the tables
+npm run dev                  # http://localhost:3000
 ```
 
-Open http://localhost:3000.
-
-| Script | What it does |
+| Command | What it does |
 |---|---|
-| `npm run dev` | Development server (regenerates the frame manifest first) |
+| `npm run dev` | Start the development server |
+| `npm test` | Run the test suite |
+| `npm run lint` · `npm run typecheck` | Code quality checks |
 | `npm run build` | Production build |
-| `npm start` | Serve the production build |
-| `npm run lint` | ESLint |
-| `npm run typecheck` | TypeScript, no emit |
-| `npm run db:migrate` | Apply pending SQL migrations from `db/migrations` |
-| `npm test` | Vitest, once (`npm run test:watch` to keep it running) |
+| `npm run db:migrate` | Apply database migrations |
 
-### Tests
+Every setting is described in [`.env.example`](.env.example) — emails and the nightly tidy-up
+are optional and switch on when their keys are set. Secrets stay on the server and never reach
+the browser.
 
-```
-tests/
-  lib/      opening hours → slots, table fit, validation schemas
-  server/   HTTP helpers, booking service (database mocked)
-  api/      the three route handlers end to end, service mocked
-  db/       the database's own guarantees, on real Postgres
-```
+---
 
-The `db/` tests prove what the code relies on: overlapping bookings are refused (even two
-inserts racing each other), back-to-back bookings are allowed, codes are unique. They run
-only when `TEST_DATABASE_URL` points at a **separate** Neon branch (create one in the Neon
-console, *Branches → New branch*), inside a throwaway schema that is dropped afterwards.
+## What's next
 
-GitHub Actions runs lint, typecheck, tests and a production build on every push and pull
-request (`.github/workflows/ci.yml`). Add `TEST_DATABASE_URL` as a repository secret to
-include the database tests there too.
+- **The kitchen's view** — tonight's tables and pre-orders on one screen for the team
+- **A waiting list** — when a moment is full, leave your number and be told if a table frees up
+- **Reminders** — a short note the morning of your booking, with a one-tap way to cancel
 
-### Database
+Opening hours, address, prices and tables are demonstration content for now.
 
-Bookings and newsletter sign-ups are stored in [Neon](https://neon.com) Postgres (free plan).
-
-1. In the Vercel project, open **Storage → Neon → Create** and connect it to the project.
-   This sets `DATABASE_URL` and `DATABASE_URL_UNPOOLED` for every environment.
-2. Copy `.env.example` to `.env.local` and paste the same two values
-   (or run `vercel env pull .env.local`).
-3. Run `npm run db:migrate` once, and again whenever a new file lands in `db/migrations`.
-
-Database access lives in `src/server/` and is marked `server-only`: importing it from a
-client component fails the build, so connection strings can never reach the browser.
-
-Also set `RATE_LIMIT_SALT` (a random secret, see `.env.example`) and `DEMO_OCCUPANCY`
-in `.env.local` and in the Vercel project's environment variables.
-
-## API
-
-| Method | Path | What it does |
-|---|---|---|
-| `GET` | `/api/availability?date=YYYY-MM-DD` | Every bookable time of the day and the tables already held then |
-| `POST` | `/api/bookings` | Books a table; the server re-checks hours, party size and the table, then issues the code |
-| `POST` | `/api/newsletter` | Adds an address to "La lettera" (signing up twice changes nothing) |
-
-- **No double bookings.** A Postgres exclusion constraint forbids two bookings of the same
-  table with overlapping times (each booking holds its table for 2 hours), so two guests
-  pressing "Confirm" at the same instant can't both win: the second gets `409 table_taken`.
-- **Validation twice.** The same zod schemas (`src/lib/schemas.ts`) check the form in the
-  browser and every request on the server.
-- **Protection.** Writes must come from the site's own origin, bodies are size-capped JSON,
-  a honeypot field catches bots, and requests are rate-limited per client (salted IP hash,
-  no raw IPs stored).
-- **One error shape.** `{ "error": { "code", "message", "fields"? } }` with the right status:
-  `403`, `409`, `413`, `415`, `422`, `429` (with `Retry-After`), `500`.
-
-## Project structure
-
-```
-src/
-  app/            routes: / (landing), /crea-il-tuo, /prenota, sitemap, robots
-  components/     hero/, crea/, booking/ and the landing sections
-  content/        every word on the site, plus menu, ingredients, tables and areas
-  lib/            frame loader, pricing, cart, availability, calendar export
-  server/         server-only code: environment check, database client
-db/
-  migrations/     plain SQL, applied in order by scripts/migrate.mjs
-public/
-  frames/         the hero frame sequence
-  crea/           plates and ingredients for the builder
-  book/           tables, props and room views for booking
-scripts/          frame manifest generator and asset helpers
-```
-
-All copy lives in `src/content/*.ts`, so text, prices, opening hours and tables can be
-changed without touching a component.
-
-## Deployment
-
-The pages are static and deploy to [Vercel](https://vercel.com): import the repository,
-keep the detected Next.js settings, and deploy. The database needs the one-time setup
-described under [Database](#database).
-
-## Status
-
-Opening hours, address, prices and the tables are demo data for now and will be replaced
-with the restaurant's real information. With `DEMO_OCCUPANCY=true` the floor plan also shows
-some believable "already booked" tables on top of the real bookings.
+---
 
 ## License
 
 The source code is released under the [MIT License](LICENSE).
 The GIRA name, logo, photographs, video frames and illustrations are **not** covered by that
 license — all rights reserved.
+
+<div align="center">
+<sub>Designed and built by <a href="https://github.com/siwar224">siwar224</a>.</sub>
+</div>

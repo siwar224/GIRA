@@ -63,6 +63,7 @@ describe("POST /api/bookings", () => {
       tableId: "5",
       name: "Giulia Rossi",
       createdAt: "2026-11-17T08:00:00.000Z",
+      emailSent: false,
     };
     vi.mocked(createBooking).mockResolvedValue(confirmed);
     const res = await postBookingRoute(postFromSite("/api/bookings", validBooking));

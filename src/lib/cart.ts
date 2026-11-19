@@ -46,6 +46,19 @@ export function addToCart(line: Omit<CartLine, "id" | "createdAt">) {
   save();
 }
 
+export function removeFromCart(id: string) {
+  load();
+  lines = lines.filter((l) => l.id !== id);
+  save();
+}
+
+/** Once the plates are sent with a booking, the local order starts empty again. */
+export function clearCart() {
+  load();
+  lines = [];
+  save();
+}
+
 function subscribe(cb: () => void) {
   load();
   listeners.add(cb);
