@@ -16,6 +16,7 @@ export type Limit = {
 export const LIMITS = {
   availability: { name: "availability", max: 60, windowSeconds: 60 },
   createBooking: { name: "bookings:create", max: 5, windowSeconds: 600 },
+  newsletter: { name: "newsletter", max: 5, windowSeconds: 600 },
 } as const satisfies Record<string, Limit>;
 
 /**

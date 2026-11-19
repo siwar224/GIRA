@@ -26,7 +26,7 @@ a build-your-own plate studio and a booking experience that sets your table as y
 | **The turn** — scroll-scrubbed hero | 376 hand-cut frames drawn to a canvas as you scroll: a forkful of pasta becomes a spiral of the sea and lands as a finished plate. Text beats, breathing light and particles ride on top. |
 | **La nostra storia & menu** | Animated counters, the kitchen's story, and a tabbed menu with a photo for every dish. Signature pastas link straight into the plate builder, already set up. |
 | **Crea il tuo** — build your plate | Pick the pasta, sauce and up to three treasures from the sea, then drag ingredients exactly where you want them on the plate. Live price, allergens and a cart that survives a refresh. |
-| **Prenota** — book a table | Lunch or dinner changes the light. The table is set for your party in real time, a spiral dial turns to your time, and an interactive floor plan lets you pick the exact table. Ends with a ticket and a calendar file. |
+| **Prenota** — book a table | Lunch or dinner changes the light. The table is set for your party in real time, a spiral dial turns to your time, and an interactive floor plan lets you pick the exact table. Availability is live and every booking is saved on the server. Ends with a ticket and a calendar file. |
 
 <table>
   <tr>
@@ -46,7 +46,8 @@ a build-your-own plate studio and a booking experience that sets your table as y
 - **Next.js 15** (App Router, static rendering) · **React 19** · **TypeScript** (strict)
 - **Tailwind CSS 4** with hand-written design tokens for the GIRA palette
 - **GSAP 3** (ScrollTrigger, SplitText) and **Lenis** for scroll-driven motion
-- No UI kit, no state library: drag and drop, cart and bookings are plain React and `localStorage`
+- No UI kit, no state library: drag and drop and the cart are plain React and `localStorage`
+- **Next.js Route Handlers** (Vercel Functions) · **Neon Postgres** · **zod** for bookings and the newsletter
 
 Accessibility is part of the build: real HTML text over every visual, full keyboard support
 (the time dial turns with the arrow keys), visible focus, 44 px touch targets, WCAG AA contrast,
@@ -94,6 +95,7 @@ in `.env.local` and in the Vercel project's environment variables.
 |---|---|---|
 | `GET` | `/api/availability?date=YYYY-MM-DD` | Every bookable time of the day and the tables already held then |
 | `POST` | `/api/bookings` | Books a table; the server re-checks hours, party size and the table, then issues the code |
+| `POST` | `/api/newsletter` | Adds an address to "La lettera" (signing up twice changes nothing) |
 
 - **No double bookings.** A Postgres exclusion constraint forbids two bookings of the same
   table with overlapping times (each booking holds its table for 2 hours), so two guests
@@ -135,8 +137,9 @@ described under [Database](#database).
 
 ## Status
 
-Opening hours, address, prices and table availability are demo data for now and will be
-replaced with the restaurant's real information.
+Opening hours, address, prices and the tables are demo data for now and will be replaced
+with the restaurant's real information. With `DEMO_OCCUPANCY=true` the floor plan also shows
+some believable "already booked" tables on top of the real bookings.
 
 ## License
 

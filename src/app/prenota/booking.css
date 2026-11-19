@@ -404,6 +404,14 @@
   justify-items: center;
   gap: 1rem;
 }
+/* Availability loading: the times stay in place, just quieter and not choosable yet. */
+.dial-wrap[data-busy] .dial__slot {
+  opacity: 0.45;
+  cursor: progress;
+}
+.book__retry {
+  margin-top: 0.5rem;
+}
 .dial {
   --dial-r: min(36vw, 9.6rem);
   position: relative;

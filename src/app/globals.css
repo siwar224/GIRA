@@ -857,3 +857,12 @@ html.lenis body {
     transform: translateY(-16px) scale(0.98);
   }
 }
+
+/* Honeypot fields: off-screen for people (and assistive tech), still filled in by bots. */
+.hp {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
