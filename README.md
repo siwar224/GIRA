@@ -15,6 +15,7 @@ and a table that is set for you — and kept for you — the moment you book it.
 [![CI](https://github.com/siwar224/GIRA/actions/workflows/ci.yml/badge.svg)](https://github.com/siwar224/GIRA/actions/workflows/ci.yml)
 [![E2E](https://github.com/siwar224/GIRA/actions/workflows/e2e.yml/badge.svg)](https://github.com/siwar224/GIRA/actions/workflows/e2e.yml)
 [![Release](https://img.shields.io/github/v/release/siwar224/GIRA?label=release&color=812116)](https://github.com/siwar224/GIRA/releases)
+[![Docker](https://img.shields.io/badge/Docker-ghcr.io%2Fsiwar224%2Fgira-2496ed?logo=docker&logoColor=white)](https://github.com/siwar224/GIRA/pkgs/container/gira)
 ![Next.js](https://img.shields.io/badge/Next.js-15-000?logo=nextdotjs)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178c6?logo=typescript&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon-00e599?logo=postgresql&logoColor=white)
@@ -125,6 +126,8 @@ guest ever sees it:
    keep the previous version.
 6. **Recorded** as a numbered release (v1.0, v1.1, …) with a list of what changed, so every
    version can be traced — and returned to.
+7. **Packaged** as a ready-to-run Docker image of that same version, published on GitHub
+   Packages — the whole restaurant, portable to any server.
 
 | Part | Built with |
 |---|---|
@@ -134,6 +137,7 @@ guest ever sees it:
 | Emails | Resend |
 | Testing | Vitest · Playwright |
 | Automation & hosting | GitHub Actions · Vercel |
+| Packaging | Docker · GitHub Packages |
 
 Everything runs on free plans at this scale.
 
@@ -146,6 +150,12 @@ npm install
 cp .env.example .env.local   # fill in the values described inside
 npm run db:migrate
 npm run dev                  # http://localhost:3000
+```
+
+Or run a released version straight from its package, no install needed:
+
+```bash
+docker run -p 3000:3000 --env-file .env.local ghcr.io/siwar224/gira:latest
 ```
 
 ---
