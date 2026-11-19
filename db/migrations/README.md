@@ -24,6 +24,9 @@ migrating in an emergency, set `SKIP_DB_MIGRATIONS=1` on that deployment.
      rows already satisfy
    - ⏳ rename or drop in two releases: first stop using the old name in the code, then
      remove it in a later migration
-3. Never edit a migration that has already been applied: add a new one instead.
-4. Push a branch: its preview applies the migration to its own database branch first, so you
+3. Update `EXPECTED_SCHEMA` in `src/server/schema-version.ts` to the new file name. The health
+   check uses it to confirm the database matches the code before a release goes live (a unit
+   test reminds you if you forget).
+4. Never edit a migration that has already been applied: add a new one instead.
+5. Push a branch: its preview applies the migration to its own database branch first, so you
    can try it safely before merging.

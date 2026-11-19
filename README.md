@@ -14,6 +14,7 @@ and a table that is set for you — and kept for you — the moment you book it.
 
 [![CI](https://github.com/siwar224/GIRA/actions/workflows/ci.yml/badge.svg)](https://github.com/siwar224/GIRA/actions/workflows/ci.yml)
 [![E2E](https://github.com/siwar224/GIRA/actions/workflows/e2e.yml/badge.svg)](https://github.com/siwar224/GIRA/actions/workflows/e2e.yml)
+[![Release](https://img.shields.io/github/v/release/siwar224/GIRA?label=release&color=812116)](https://github.com/siwar224/GIRA/releases)
 ![Next.js](https://img.shields.io/badge/Next.js-15-000?logo=nextdotjs)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178c6?logo=typescript&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon-00e599?logo=postgresql&logoColor=white)
@@ -108,8 +109,11 @@ guest ever sees it:
    touches real bookings.
 4. **Tried by a robot guest** that opens the preview in a real browser, books a table, finds the
    booking again and cancels it.
-5. **Published** only when everything is green — and the database updates itself as part of the
-   release.
+5. **Tasted before serving.** The new version is built out of sight, checked one last time —
+   pages, database, version — and only then shown to guests. If anything is off, guests simply
+   keep the previous version.
+6. **Recorded** as a numbered release (v1.0, v1.1, …) with a list of what changed, so every
+   version can be traced — and returned to.
 
 | Part | Built with |
 |---|---|
