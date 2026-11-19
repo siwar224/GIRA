@@ -38,7 +38,7 @@ describe.skipIf(!url)("database schema (TEST_DATABASE_URL)", () => {
     await client.connect();
     await client.query(`CREATE SCHEMA ${schema}`);
     await client.query(`SET search_path TO ${schema}, public`);
-    const sql = await readFile(path.resolve(__dirname, "../../db/migrations/001_init.sql"), "utf8");
+    const sql = await readFile(path.resolve(import.meta.dirname, "../../db/migrations/001_init.sql"), "utf8");
     await client.query(sql);
   });
 

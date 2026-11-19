@@ -3,7 +3,7 @@ import path from "node:path";
 import { parseEnv } from "node:util";
 import { defineConfig } from "vitest/config";
 
-const src = path.resolve(__dirname, "src");
+const src = path.resolve(import.meta.dirname, "src");
 
 /**
  * Only TEST_DATABASE_URL is taken from .env.local (a variable set in the shell wins).
@@ -12,7 +12,7 @@ const src = path.resolve(__dirname, "src");
 function testEnv(): Record<string, string> {
   if (process.env.TEST_DATABASE_URL) return { TEST_DATABASE_URL: process.env.TEST_DATABASE_URL };
   try {
-    const url = parseEnv(readFileSync(path.resolve(__dirname, ".env.local"), "utf8")).TEST_DATABASE_URL;
+    const url = parseEnv(readFileSync(path.resolve(import.meta.dirname, ".env.local"), "utf8")).TEST_DATABASE_URL;
     return url ? { TEST_DATABASE_URL: url } : {};
   } catch {
     return {};
@@ -24,7 +24,7 @@ export default defineConfig({
     alias: {
       "@": src,
       // `server-only` throws outside a React Server Components build; in tests it is a no-op.
-      "server-only": path.resolve(__dirname, "tests/stubs/server-only.ts"),
+      "server-only": path.resolve(import.meta.dirname, "tests/stubs/server-only.ts"),
     },
   },
   test: {

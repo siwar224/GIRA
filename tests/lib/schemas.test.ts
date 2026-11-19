@@ -17,8 +17,9 @@ describe("bookingRequest", () => {
   });
 
   it("defaults the occasion", () => {
-    const { occasion: _omit, ...rest } = validBooking;
-    expect(bookingRequest.parse(rest).occasion).toBe("none");
+    const withoutOccasion: Partial<typeof validBooking> = { ...validBooking };
+    delete withoutOccasion.occasion;
+    expect(bookingRequest.parse(withoutOccasion).occasion).toBe("none");
   });
 
   it.each([
