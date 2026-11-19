@@ -70,6 +70,20 @@ Open http://localhost:3000.
 | `npm start` | Serve the production build |
 | `npm run lint` | ESLint |
 | `npm run typecheck` | TypeScript, no emit |
+| `npm run db:migrate` | Apply pending SQL migrations from `db/migrations` |
+
+### Database
+
+Bookings and newsletter sign-ups are stored in [Neon](https://neon.com) Postgres (free plan).
+
+1. In the Vercel project, open **Storage → Neon → Create** and connect it to the project.
+   This sets `DATABASE_URL` and `DATABASE_URL_UNPOOLED` for every environment.
+2. Copy `.env.example` to `.env.local` and paste the same two values
+   (or run `vercel env pull .env.local`).
+3. Run `npm run db:migrate` once, and again whenever a new file lands in `db/migrations`.
+
+Database access lives in `src/server/` and is marked `server-only`: importing it from a
+client component fails the build, so connection strings can never reach the browser.
 
 ## Project structure
 
@@ -79,6 +93,9 @@ src/
   components/     hero/, crea/, booking/ and the landing sections
   content/        every word on the site, plus menu, ingredients, tables and areas
   lib/            frame loader, pricing, cart, availability, calendar export
+  server/         server-only code: environment check, database client
+db/
+  migrations/     plain SQL, applied in order by scripts/migrate.mjs
 public/
   frames/         the hero frame sequence
   crea/           plates and ingredients for the builder
@@ -91,8 +108,9 @@ changed without touching a component.
 
 ## Deployment
 
-The site is fully static and deploys to [Vercel](https://vercel.com) with no extra setup:
-import the repository, keep the detected Next.js settings, and deploy.
+The pages are static and deploy to [Vercel](https://vercel.com): import the repository,
+keep the detected Next.js settings, and deploy. The database needs the one-time setup
+described under [Database](#database).
 
 ## Status
 
