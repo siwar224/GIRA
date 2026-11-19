@@ -7,6 +7,7 @@ import { booking } from "@/content/booking";
 import { emailEnabled, runAfterResponse, sendEmail } from "../email";
 import { bookingCancellation } from "../email-templates";
 import { ApiError } from "../http";
+import { notifyWaitlist } from "../waitlist";
 import { deleteBooking, findByCode, getPreorder, savePreorder, tidyUp, type StoredBooking } from "./repo";
 
 /**
@@ -75,6 +76,8 @@ export async function cancelBooking(code: string, phone: string): Promise<void> 
   const b = await ownBooking(code, phone);
   assertUpcoming(b);
   if (!(await deleteBooking(b.id))) throw notFound(); // cancelled in another tab meanwhile
+  // A table just freed up: tell the first guests waiting for this moment.
+  runAfterResponse(() => notifyWaitlist(b.date, b.meal));
   if (b.email && emailEnabled()) {
     const mail = bookingCancellation({
       to: b.email,

@@ -19,6 +19,7 @@ import {
 } from "@/lib/booking";
 import { bookingRequest, type Availability, type BookingRequestInput } from "@/lib/schemas";
 import { TableScene } from "./TableScene";
+import { WaitlistForm } from "./WaitlistForm";
 import { TimeDial } from "./TimeDial";
 import { FloorPlan } from "./FloorPlan";
 import { Ticket } from "./Ticket";
@@ -55,13 +56,23 @@ export function BookingFlow() {
   const honeypot = useRef<HTMLInputElement>(null);
   const days = useMemo(() => nextDays().map((d) => ({ ...d, open: d.open && mealsFor(d.iso).length > 0 })), []);
 
-  // First open day, and a moment that day actually offers.
+  // First open day, and a moment that day actually offers — unless the link says which
+  // (the waiting-list email opens /prenota?date=…&meal=…&guests=…).
   useEffect(() => {
+    const q = new URLSearchParams(window.location.search);
+    const linked = days.find((d) => d.iso === q.get("date") && d.open);
     // Today may have no times left (already past closing) — then start on the next open day.
-    const first = days.find((d) => d.open && mealsFor(d.iso).length > 0);
+    const first = linked ?? days.find((d) => d.open && mealsFor(d.iso).length > 0);
     if (!first) return;
     const meals = mealsFor(first.iso);
-    setS((p) => ({ ...p, date: first.iso, meal: meals.includes("dinner") ? "dinner" : (meals[0] ?? "lunch") }));
+    const wanted = q.get("meal") as Meal | null;
+    const guests = Number(q.get("guests"));
+    setS((p) => ({
+      ...p,
+      date: first.iso,
+      meal: linked && wanted && meals.includes(wanted) ? wanted : meals.includes("dinner") ? "dinner" : (meals[0] ?? "lunch"),
+      guests: linked && Number.isInteger(guests) && guests >= booking.guests.min && guests <= booking.guests.max ? guests : p.guests,
+    }));
   }, [days]);
 
   // ── Live availability for the chosen day (GET /api/availability) ──
@@ -110,6 +121,13 @@ export function BookingFlow() {
         : [],
     [s.date, s.meal, s.guests, s.area, ready, taken],
   );
+
+  /** Every table that suits the party is taken at every time of this moment (any area). */
+  const fullForParty = useMemo(() => {
+    if (!ready || !s.date) return false;
+    const times = slotsFor(s.date, s.meal);
+    return times.length > 0 && times.every((time) => slotStatus(s.date, time, s.guests, null, taken) === "full");
+  }, [ready, s.date, s.meal, s.guests, taken]);
 
   // Fresh data says the chosen table is gone: free the choice and say why.
   useEffect(() => {
@@ -373,6 +391,16 @@ export function BookingFlow() {
           <p className="book__hint">{booking.time.hint}</p>
           {s.date && <p className="book__when">{longDate(s.date)}</p>}
           {ready && slots.length > 0 && slots.every((x) => x.status === "full") && <p className="book__warn">{booking.time.none}</p>}
+          {fullForParty && (
+            <WaitlistForm
+              key={`${s.date}-${s.meal}-${s.guests}`}
+              date={s.date}
+              meal={s.meal}
+              guests={s.guests}
+              defaults={{ name: s.name, phone: s.phone, email: s.email }}
+              onTableFree={refresh}
+            />
+          )}
           {availError ? (
             <div role="alert">
               <p className="book__warn">{booking.time.loadError}</p>

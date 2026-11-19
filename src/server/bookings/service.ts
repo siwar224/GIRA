@@ -17,7 +17,7 @@ import { heldOnDay, insertBooking, PG, pgCode, type HeldSlot } from "./repo";
 const DURATION = booking.durationMinutes;
 
 /** The day must be one of the bookable days shown on the page (today + 13), and open. */
-function assertBookableDay(date: string): void {
+export function assertBookableDay(date: string): void {
   const day = nextDays().find((d) => d.iso === date);
   if (!day) {
     throw new ApiError(422, "date_out_of_range", `Bookings open ${booking.date.days} days ahead. Please choose another day.`);

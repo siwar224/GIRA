@@ -19,6 +19,9 @@ export const LIMITS = {
   newsletter: { name: "newsletter", max: 5, windowSeconds: 600 },
   /** Looking up, cancelling and pre-ordering: generous for a guest, useless for guessing codes. */
   manageBooking: { name: "bookings:manage", max: 20, windowSeconds: 600 },
+  waitlist: { name: "waitlist", max: 5, windowSeconds: 600 },
+  /** La sala sign-in: enough for typos, far too few to guess a password. */
+  staffSignIn: { name: "staff:signin", max: 8, windowSeconds: 900 },
 } as const satisfies Record<string, Limit>;
 
 /**

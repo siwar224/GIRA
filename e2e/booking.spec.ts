@@ -53,5 +53,6 @@ test("the same code and a wrong phone number find nothing", async ({ page }) => 
   await page.goto("/prenota/gestisci?code=GIRA-ABCD2345");
   await page.locator("#manage-phone").fill("+33 6 00 00 00 00");
   await page.getByRole("button", { name: "Find my booking" }).click();
-  await expect(page.getByRole("alert")).toHaveText(/couldn't find a booking/);
+  // By its text: Next.js adds its own (empty) role="alert" route announcer to every page.
+  await expect(page.getByText(/couldn't find a booking/)).toBeVisible();
 });

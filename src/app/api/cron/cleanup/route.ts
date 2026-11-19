@@ -23,6 +23,8 @@ export const GET = handle(async (request: Request) => {
   const given = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ?? "";
   if (!sameSecret(given, secret)) throw new ApiError(401, "unauthorized", "Not allowed.");
   const deleted = await nightlyTidyUp();
-  console.info(`[cron] tidy-up removed ${deleted.bookings} past booking(s), ${deleted.rateLimits} counter(s)`);
+  console.info(
+    `[cron] tidy-up removed ${deleted.bookings} past booking(s), ${deleted.waitlist} waiting-list place(s), ${deleted.rateLimits} counter(s)`,
+  );
   return json({ deleted });
 });

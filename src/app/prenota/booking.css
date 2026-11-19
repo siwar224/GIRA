@@ -1059,3 +1059,34 @@
   font-weight: 600;
   color: var(--color-basilico);
 }
+
+/* ── Waiting list (a full moment) ─────────────────────────────────── */
+.waitlist {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 1rem;
+  padding: 1rem 1.1rem;
+  border-radius: 1.1rem;
+  border: 1px dashed color-mix(in oklab, var(--color-rosso) 35%, transparent);
+  background: color-mix(in oklab, var(--color-zafferano) 10%, var(--card));
+}
+.waitlist__title {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 1.25rem;
+  color: var(--color-rosso);
+}
+.waitlist__lead {
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+.waitlist .details {
+  grid-template-columns: 1fr;
+}
+.waitlist .btn {
+  justify-self: start;
+}
+.waitlist--done {
+  font-weight: 600;
+  color: var(--color-basilico);
+}

@@ -8,6 +8,8 @@ import type {
   NewsletterRequestInput,
   Preorder,
   PreorderRequestInput,
+  SalaService,
+  WaitlistRequestInput,
 } from "@/lib/schemas";
 
 /** A failed API call, with the server's own code and message when it sent one. */
@@ -62,3 +64,13 @@ export const sendPreorder = (code: string, input: PreorderRequestInput) =>
   sendJson<{ preorder: Preorder }>("PUT", `/api/bookings/${encodeURIComponent(code)}/preorder`, input).then(
     (r) => r.preorder,
   );
+
+export const joinWaitlist = (input: WaitlistRequestInput) => postJson<{ waiting: true }>("/api/waitlist", input);
+
+// ── La sala (team only; the session lives in an HttpOnly cookie) ──────────────
+
+export const staffSession = () => request<{ signedIn: true }>("/api/staff/session");
+export const staffSignIn = (password: string) => postJson<{ signedIn: true }>("/api/staff/session", { password });
+export const staffSignOut = () => sendJson<{ signedIn: false }>("DELETE", "/api/staff/session", {});
+export const fetchService = (date: string, meal: "lunch" | "dinner", signal?: AbortSignal) =>
+  request<SalaService>(`/api/staff/service?${new URLSearchParams({ date, meal })}`, { signal });

@@ -196,6 +196,17 @@ export const booking = {
     rows: { name: "Name", when: "When", guests: "Guests", table: "Table", occasion: "Occasion" },
   },
 
+  /** When every table for the party is taken at a moment: the waiting list. */
+  waitlist: {
+    title: "Full — but not for long?",
+    lead: (meal: string) =>
+      `Every table for your party is taken at ${meal}. Leave your details: if a table frees up, we'll email you straight away.`,
+    join: "Join the waiting list",
+    joining: "Adding you…",
+    done: "You're on the waiting list. We'll write the moment a table frees up — then it's first come, first served.",
+    emailHint: "We'll use your email to tell you. Without one, we may call you.",
+  },
+
   /** "Find or cancel a booking" (/prenota/gestisci): the code and the phone number prove it's yours. */
   manage: {
     href: "/prenota/gestisci",

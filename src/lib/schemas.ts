@@ -83,6 +83,27 @@ export const newsletterRequest = z.object({
 export type NewsletterRequest = z.infer<typeof newsletterRequest>;
 export type NewsletterRequestInput = z.input<typeof newsletterRequest>;
 
+// ── Waiting list: a full moment, and a guest who'd like to hear if a table frees up ──
+
+export const waitlistRequest = z.object({
+  date: isoDate,
+  meal: z.enum(["lunch", "dinner"]),
+  guests: z.number().int().min(booking.guests.min).max(booking.guests.max),
+  name: z.string().trim().min(1, D.name.error).max(80).refine(noControl, D.name.error),
+  phone,
+  email: z
+    .string()
+    .trim()
+    .max(254, D.email.error)
+    .optional()
+    .transform((v) => v || null)
+    .refine((v) => v === null || EMAIL_RE.test(v), D.email.error),
+  /** Honeypot, as on the booking form. */
+  website: z.string().max(0).optional(),
+});
+export type WaitlistRequest = z.infer<typeof waitlistRequest>;
+export type WaitlistRequestInput = z.input<typeof waitlistRequest>;
+
 // ── Managing a booking: the code and the phone number prove it's yours ──────────
 
 export const lookupRequest = z.object({ code: bookingCode, phone });
@@ -161,6 +182,38 @@ export type BookingDetails = {
   /** Still to come: it can be cancelled and pre-ordered for. */
   upcoming: boolean;
   preorder: Preorder | null;
+};
+
+// ── La sala (the team's view, signed in) ──────────────────────────────────────
+
+export const serviceQuery = z.object({ date: isoDate, meal: z.enum(["lunch", "dinner"]) });
+
+/** A table's booking during a service. */
+export type SalaBooking = {
+  code: string;
+  tableId: string;
+  time: string;
+  /** Minutes from midnight: the table is taken from startMin until endMin. */
+  startMin: number;
+  endMin: number;
+  guests: number;
+  name: string;
+  phone: string;
+  occasion: OccasionId;
+  note: string | null;
+  preorder: PreorderItem[] | null;
+};
+
+export type SalaWaiting = { name: string; guests: number; phone: string; email: string | null; createdAt: string; notified: boolean };
+
+/** GET /api/staff/service */
+export type SalaService = {
+  date: string;
+  meal: Meal;
+  /** The service's times, from first to last booking slot. */
+  slots: string[];
+  bookings: SalaBooking[];
+  waitlist: SalaWaiting[];
 };
 
 /** Any non-2xx response. */
