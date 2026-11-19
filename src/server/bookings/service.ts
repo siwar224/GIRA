@@ -2,6 +2,8 @@ import "server-only";
 import { booking } from "@/content/booking";
 import { demoTaken, fits, mealOf, minutesOf, nextDays, slotsFor, tableById, type Table } from "@/lib/booking";
 import type { Availability, BookingRequest, ConfirmedBooking } from "@/lib/schemas";
+import { emailEnabled, runAfterResponse, sendEmail } from "../email";
+import { bookingConfirmation } from "../email-templates";
 import { serverEnv } from "../env";
 import { ApiError } from "../http";
 import { heldOnDay, insertBooking, PG, pgCode, type HeldSlot } from "./repo";
@@ -96,6 +98,21 @@ export async function createBooking(req: BookingRequest): Promise<ConfirmedBooki
         email: req.email,
         note: req.note,
       });
+      // The confirmation goes out after the response: the guest never waits for it, and a
+      // mail outage never undoes a booking.
+      const emailSent = !!req.email && emailEnabled();
+      if (emailSent) {
+        const mail = bookingConfirmation({
+          to: req.email!,
+          code,
+          name: req.name,
+          date: req.date,
+          time: req.time,
+          guests: req.guests,
+          tableId: table.id,
+        });
+        runAfterResponse(() => sendEmail(mail));
+      }
       return {
         code,
         date: req.date,
@@ -106,6 +123,7 @@ export async function createBooking(req: BookingRequest): Promise<ConfirmedBooki
         tableId: table.id,
         name: req.name,
         createdAt,
+        emailSent,
       };
     } catch (err) {
       const code = pgCode(err);

@@ -102,7 +102,15 @@ export function Ticket({ saved, onAnother }: Props) {
         <a className="btn btn--primary ticket__preorder" href="/crea-il-tuo">
           {T.preorder} <span aria-hidden="true">→</span>
         </a>
+        <a className="btn btn--ghost" href={`${booking.manage.href}?code=${encodeURIComponent(saved.code)}`}>
+          {T.manage}
+        </a>
       </div>
+      {saved.emailSent && saved.email && (
+        <p className="ticket__again" role="status">
+          {T.emailed(saved.email.trim())}
+        </p>
+      )}
       <p className="ticket__again">
         <button type="button" onClick={onAnother}>
           {T.another}

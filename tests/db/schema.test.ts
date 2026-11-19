@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import pg from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -38,8 +38,11 @@ describe.skipIf(!url)("database schema (TEST_DATABASE_URL)", () => {
     await client.connect();
     await client.query(`CREATE SCHEMA ${schema}`);
     await client.query(`SET search_path TO ${schema}, public`);
-    const sql = await readFile(path.resolve(import.meta.dirname, "../../db/migrations/001_init.sql"), "utf8");
-    await client.query(sql);
+    // Every migration, in order, exactly as `npm run db:migrate` applies them.
+    const dir = path.resolve(import.meta.dirname, "../../db/migrations");
+    for (const file of (await readdir(dir)).filter((f) => f.endsWith(".sql")).sort()) {
+      await client.query(await readFile(path.join(dir, file), "utf8"));
+    }
   });
 
   afterAll(async () => {
@@ -99,6 +102,54 @@ describe.skipIf(!url)("database schema (TEST_DATABASE_URL)", () => {
 
     it("refuses an empty or backwards time range", async () => {
       expect(await pgCode(book("8", "2026-11-20 21:00", "2026-11-20 21:00"))).toBe("23514");
+    });
+  });
+
+  describe("preorders", () => {
+    it("keeps one pre-order per booking and deletes it with the booking", async () => {
+      const code = randomCode();
+      await book("9", "2026-11-25 19:00", "2026-11-25 21:00", code);
+      const { rows } = await client.query("SELECT id FROM bookings WHERE code = $1", [code]);
+      const id = rows[0].id;
+      const save = (total: number) =>
+        client.query(
+          `INSERT INTO preorders (booking_id, items, total_cents) VALUES ($1, '[{"name":"Linguine"}]', $2)
+           ON CONFLICT (booking_id) DO UPDATE SET total_cents = EXCLUDED.total_cents`,
+          [id, total],
+        );
+      await save(1200);
+      await save(1800);
+      const after = await client.query("SELECT total_cents FROM preorders WHERE booking_id = $1", [id]);
+      expect(after.rows).toEqual([{ total_cents: 1800 }]);
+
+      await client.query("DELETE FROM bookings WHERE id = $1", [id]);
+      const gone = await client.query("SELECT 1 FROM preorders WHERE booking_id = $1", [id]);
+      expect(gone.rowCount).toBe(0);
+    });
+
+    it("refuses an empty pre-order", async () => {
+      const code = randomCode();
+      await book("10", "2026-11-25 19:00", "2026-11-25 21:00", code);
+      const { rows } = await client.query("SELECT id FROM bookings WHERE code = $1", [code]);
+      expect(
+        await pgCode(client.query("INSERT INTO preorders (booking_id, items, total_cents) VALUES ($1, '[]', 0)", [rows[0].id])),
+      ).toBe("23514");
+    });
+  });
+
+  describe("tidy-up", () => {
+    it("removes bookings that ended before today and keeps the rest", async () => {
+      const past = randomCode();
+      const future = randomCode();
+      await book("C1", "2020-01-10 19:00", "2020-01-10 21:00", past);
+      await book("C1", "2099-01-10 19:00", "2099-01-10 21:00", future);
+      // The same statement as src/server/bookings/repo.ts → tidyUp().
+      await client.query(
+        "DELETE FROM bookings WHERE upper(slot) <= date_trunc('day', now() AT TIME ZONE $1)",
+        ["Europe/Paris"],
+      );
+      const { rows } = await client.query("SELECT code FROM bookings WHERE code = ANY($1)", [[past, future]]);
+      expect(rows.map((r) => r.code)).toEqual([future]);
     });
   });
 

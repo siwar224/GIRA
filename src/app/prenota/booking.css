@@ -980,3 +980,82 @@
   min-height: 40px;
   color: var(--color-rosso);
 }
+
+/* ── Manage a booking (/prenota/gestisci) ─────────────────────────── */
+.manage {
+  max-width: 52rem;
+  padding-bottom: 4rem;
+}
+.manage .book__title:focus {
+  outline: none;
+}
+@media (min-width: 768px) {
+  .manage__lookup {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.manage__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+.manage__group {
+  margin-top: 1.25rem;
+}
+.manage__h3 {
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 0.5rem;
+}
+.manage__plates {
+  display: grid;
+  gap: 0.5rem;
+}
+.manage__plate {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px dashed color-mix(in oklab, var(--color-rosso) 22%, transparent);
+}
+.manage__plate strong {
+  display: block;
+  font-family: var(--font-serif);
+  font-weight: 500;
+}
+.manage__plate small {
+  display: block;
+  color: var(--ink-soft);
+}
+.manage__plate-end {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  white-space: nowrap;
+}
+.manage__remove {
+  min-height: 44px;
+  font-size: 0.8125rem;
+  color: #a3301b;
+  text-decoration: underline;
+}
+.manage__total {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.75rem;
+  font-weight: 600;
+}
+.manage__total strong {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  color: var(--color-rosso);
+}
+.manage__ok {
+  margin-top: 0.75rem;
+  font-weight: 600;
+  color: var(--color-basilico);
+}

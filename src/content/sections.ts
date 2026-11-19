@@ -95,7 +95,7 @@ export const menu = {
         },
         {
           name: "Linguine allo scoglio",
-          description: "Mussels, prawns, cherry tomatoes and white wine — our signature plate.",
+          description: "Mussels, prawns, cherry tomatoes and garlic — our signature plate.",
           price: "24",
           tags: ["Signature"],
           crea: { pasta: "linguine", sauce: "pomodoro", sea: ["prawns", "mussels", "clams"] },

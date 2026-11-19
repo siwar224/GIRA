@@ -2,9 +2,12 @@ import { site } from "@/content/site";
 import type {
   ApiErrorBody,
   Availability,
+  BookingDetails,
   BookingRequestInput,
   ConfirmedBooking,
   NewsletterRequestInput,
+  Preorder,
+  PreorderRequestInput,
 } from "@/lib/schemas";
 
 /** A failed API call, with the server's own code and message when it sent one. */
@@ -36,8 +39,9 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   return data as T;
 }
 
-const postJson = <T>(path: string, body: unknown) =>
-  request<T>(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+const sendJson = <T>(method: "POST" | "PUT" | "DELETE", path: string, body: unknown) =>
+  request<T>(path, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+const postJson = <T>(path: string, body: unknown) => sendJson<T>("POST", path, body);
 
 export const fetchAvailability = (date: string, signal?: AbortSignal) =>
   request<Availability>(`/api/availability?date=${encodeURIComponent(date)}`, { signal });
@@ -47,3 +51,14 @@ export const createBooking = (input: BookingRequestInput) =>
 
 export const subscribeNewsletter = (input: NewsletterRequestInput) =>
   postJson<{ subscribed: true }>("/api/newsletter", input);
+
+export const lookupBooking = (code: string, phone: string) =>
+  postJson<{ booking: BookingDetails }>("/api/bookings/lookup", { code, phone }).then((r) => r.booking);
+
+export const cancelBooking = (code: string, phone: string) =>
+  sendJson<{ cancelled: true }>("DELETE", `/api/bookings/${encodeURIComponent(code)}`, { phone });
+
+export const sendPreorder = (code: string, input: PreorderRequestInput) =>
+  sendJson<{ preorder: Preorder }>("PUT", `/api/bookings/${encodeURIComponent(code)}/preorder`, input).then(
+    (r) => r.preorder,
+  );
