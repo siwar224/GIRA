@@ -1,7 +1,7 @@
 import "server-only";
 import { booking } from "@/content/booking";
 import { demoTaken, fits, mealOf, minutesOf, nextDays, slotsFor, tableById, type Table } from "@/lib/booking";
-import type { BookingRequest } from "@/lib/schemas";
+import type { Availability, BookingRequest, ConfirmedBooking } from "@/lib/schemas";
 import { serverEnv } from "../env";
 import { ApiError } from "../http";
 import { heldOnDay, insertBooking, PG, pgCode, type HeldSlot } from "./repo";
@@ -13,25 +13,6 @@ import { heldOnDay, insertBooking, PG, pgCode, type HeldSlot } from "./repo";
  */
 
 const DURATION = booking.durationMinutes;
-
-export type Availability = {
-  date: string;
-  durationMinutes: number;
-  /** Every bookable time of the day, with the tables that can't be booked then. */
-  slots: { time: string; meal: "lunch" | "dinner"; taken: string[] }[];
-};
-
-export type ConfirmedBooking = {
-  code: string;
-  date: string;
-  time: string;
-  guests: number;
-  meal: "lunch" | "dinner";
-  occasion: BookingRequest["occasion"];
-  tableId: string;
-  name: string;
-  createdAt: string;
-};
 
 /** The day must be one of the bookable days shown on the page (today + 13), and open. */
 function assertBookableDay(date: string): void {

@@ -1,27 +1,30 @@
 "use client";
 import Image from "next/image";
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { booking, type AreaId, type Meal, type OccasionId } from "@/content/booking";
+import { site } from "@/content/site";
+import { ApiRequestError, createBooking, fetchAvailability } from "@/lib/api";
 import {
   fits,
-  isTaken,
   longDate,
   mealsFor,
   nextDays,
-  saveBooking,
   slotsFor,
   slotStatus,
   tableById,
   tableSizeFor,
   type BookingState,
   type SavedBooking,
+  type TakenFn,
 } from "@/lib/booking";
+import { bookingRequest, type Availability, type BookingRequestInput } from "@/lib/schemas";
 import { TableScene } from "./TableScene";
 import { TimeDial } from "./TimeDial";
 import { FloorPlan } from "./FloorPlan";
 import { Ticket } from "./Ticket";
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+type ErrorKey = "name" | "phone" | "email" | "note" | "missing" | "server";
+const FIELD_KEYS = ["name", "phone", "email", "note"] as const;
 
 function initialState(): BookingState {
   return {
@@ -46,8 +49,10 @@ function initialState(): BookingState {
  */
 export function BookingFlow() {
   const [s, setS] = useState<BookingState>(initialState);
-  const [errors, setErrors] = useState<Partial<Record<"name" | "phone" | "email" | "missing", string>>>({});
+  const [errors, setErrors] = useState<Partial<Record<ErrorKey, string>>>({});
   const [saved, setSaved] = useState<SavedBooking | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const honeypot = useRef<HTMLInputElement>(null);
   const days = useMemo(() => nextDays().map((d) => ({ ...d, open: d.open && mealsFor(d.iso).length > 0 })), []);
 
   // First open day, and a moment that day actually offers.
@@ -59,11 +64,60 @@ export function BookingFlow() {
     setS((p) => ({ ...p, date: first.iso, meal: meals.includes("dinner") ? "dinner" : (meals[0] ?? "lunch") }));
   }, [days]);
 
+  // ── Live availability for the chosen day (GET /api/availability) ──
+  const [avail, setAvail] = useState<Availability | null>(null);
+  const [availError, setAvailError] = useState(false);
+  const [reload, setReload] = useState(0);
+  const refresh = useCallback(() => setReload((n) => n + 1), []);
+
+  useEffect(() => {
+    if (!s.date) return;
+    const ctrl = new AbortController();
+    setAvailError(false);
+    fetchAvailability(s.date, ctrl.signal)
+      .then(setAvail)
+      .catch(() => {
+        if (!ctrl.signal.aborted) setAvailError(true);
+      });
+    return () => ctrl.abort();
+  }, [s.date, reload]);
+
+  // Coming back to the tab: someone may have booked in the meantime.
+  useEffect(() => {
+    const onVisible = () => document.visibilityState === "visible" && refresh();
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, [refresh]);
+
+  /** Data for the day on screen is in (a refresh keeps showing the previous answer meanwhile). */
+  const ready = !!avail && avail.date === s.date;
+  const busy = !ready;
+  const takenAt = useMemo(() => new Map(avail?.slots.map((x) => [x.time, new Set(x.taken)]) ?? []), [avail]);
+  /** Until the server has answered, nothing counts as free; a time it doesn't list can't be booked. */
+  const taken: TakenFn = useCallback(
+    (tableId, iso, time) => !ready || avail?.date !== iso || (takenAt.get(time)?.has(tableId) ?? true),
+    [ready, avail, takenAt],
+  );
+
   const meals = s.date ? mealsFor(s.date) : [];
   const slots = useMemo(
-    () => (s.date ? slotsFor(s.date, s.meal).map((time) => ({ time, status: slotStatus(s.date, time, s.guests, s.area) })) : []),
-    [s.date, s.meal, s.guests, s.area],
+    () =>
+      s.date
+        ? slotsFor(s.date, s.meal).map((time) => ({
+            time,
+            status: ready ? slotStatus(s.date, time, s.guests, s.area, taken) : ("available" as const),
+          }))
+        : [],
+    [s.date, s.meal, s.guests, s.area, ready, taken],
   );
+
+  // Fresh data says the chosen table is gone: free the choice and say why.
+  useEffect(() => {
+    if (saved || !ready || !s.tableId || !s.time || !taken(s.tableId, s.date, s.time)) return;
+    setS((p) => ({ ...p, tableId: null }));
+    setErrors((e) => ({ ...e, server: booking.details.tableGone }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [avail]);
   const table = tableById(s.tableId);
   const size = table?.size ?? tableSizeFor(s.guests);
 
@@ -74,7 +128,7 @@ export function BookingFlow() {
       if (patch.date && !mealsFor(n.date).includes(n.meal)) n.meal = mealsFor(n.date)[0] ?? n.meal;
       if (n.time && !slotsFor(n.date, n.meal).includes(n.time)) n.time = null;
       const t = tableById(n.tableId);
-      if (t && (!n.time || !fits(t.size, n.guests) || isTaken(t.id, n.date, n.time) || (n.area && t.area !== n.area)))
+      if (t && (!n.time || !fits(t.size, n.guests) || taken(t.id, n.date, n.time) || (n.area && t.area !== n.area)))
         n.tableId = null;
       return n;
     });
@@ -88,6 +142,7 @@ export function BookingFlow() {
       const label = booking.areas.find((a) => a.id === t.area)?.label ?? t.area;
       setAreaNote(booking.plan.switched(label));
     } else setAreaNote("");
+    setErrors((e) => ({ ...e, missing: undefined, server: undefined }));
     set({ tableId, area: t.area });
   };
   const chooseArea = (area: AreaId | null) => {
@@ -95,23 +150,74 @@ export function BookingFlow() {
     set({ area });
   };
 
-  const onSubmit = (e: FormEvent) => {
+  const focusOn = (id: string) => {
+    document.getElementById(id)?.focus();
+    document.getElementById(id)?.scrollIntoView({ block: "center", behavior: "smooth" });
+  };
+
+  /** Field messages from a validation failure (browser-side zod, or the server's 422). */
+  const fieldErrors = (fields: Record<string, string[] | undefined>) => {
+    const out: typeof errors = {};
+    for (const k of FIELD_KEYS) if (fields[k]?.[0]) out[k] = fields[k]![0];
+    return out;
+  };
+
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    const D = booking.details;
+    if (submitting) return;
+
+    const input: BookingRequestInput = {
+      date: s.date,
+      time: s.time ?? "",
+      guests: s.guests,
+      occasion: s.occasion,
+      tableId: s.tableId ?? "",
+      name: s.name,
+      phone: s.phone,
+      email: s.email,
+      note: s.note,
+      website: honeypot.current?.value ?? "",
+    };
+
+    // Same schema as the server: catch the obvious before the round trip.
     const err: typeof errors = {};
-    if (!s.time || !s.tableId) err.missing = D.missing;
-    if (!s.name.trim()) err.name = D.name.error;
-    if (s.phone.replace(/\D/g, "").length < 8) err.phone = D.phone.error;
-    if (s.email && !EMAIL_RE.test(s.email.trim())) err.email = D.email.error;
+    if (!s.time || !s.tableId) err.missing = booking.details.missing;
+    const check = bookingRequest.safeParse(input);
+    if (!check.success) {
+      const byField: Record<string, string[]> = {};
+      for (const issue of check.error.issues) (byField[String(issue.path[0])] ??= []).push(issue.message);
+      Object.assign(err, fieldErrors(byField));
+    }
     setErrors(err);
     if (Object.keys(err).length) {
-      const first = err.missing ? (s.time ? "book-table" : "book-time") : `book-${Object.keys(err)[0]}`;
-      document.getElementById(first)?.focus();
-      document.getElementById(first)?.scrollIntoView({ block: "center", behavior: "smooth" });
+      focusOn(err.missing ? (s.time ? "book-table" : "book-time") : `book-${Object.keys(err)[0]}`);
       return;
     }
-    setSaved(saveBooking(s));
-    window.scrollTo({ top: 0 });
+
+    setSubmitting(true);
+    try {
+      const confirmed = await createBooking(input);
+      setSaved({ ...s, name: confirmed.name, code: confirmed.code, createdAt: Date.parse(confirmed.createdAt) });
+      refresh();
+      window.scrollTo({ top: 0 });
+    } catch (ex) {
+      const apiErr = ex instanceof ApiRequestError ? ex : null;
+      const fields = apiErr ? fieldErrors(apiErr.fields) : {};
+      if (Object.keys(fields).length) {
+        setErrors(fields);
+        focusOn(`book-${Object.keys(fields)[0]}`);
+      } else {
+        setErrors({ server: apiErr?.message ?? site.api.generic });
+      }
+      // Taken in the meantime, or the day/time changed under us: start from fresh data.
+      if (apiErr?.status === 409) {
+        setS((p) => ({ ...p, tableId: null }));
+        focusOn("book-table");
+      }
+      if (apiErr && (apiErr.status === 409 || apiErr.status === 422)) refresh();
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (saved)
@@ -120,6 +226,7 @@ export function BookingFlow() {
         saved={saved}
         onAnother={() => {
           setSaved(null);
+          setErrors({});
           setS((p) => ({ ...initialState(), date: p.date, meal: p.meal }));
         }}
       />
@@ -259,10 +366,24 @@ export function BookingFlow() {
           </h2>
           <p className="book__hint">{booking.time.hint}</p>
           {s.date && <p className="book__when">{longDate(s.date)}</p>}
-          {slots.length > 0 && slots.every((x) => x.status === "full") && <p className="book__warn">{booking.time.none}</p>}
+          {ready && slots.length > 0 && slots.every((x) => x.status === "full") && <p className="book__warn">{booking.time.none}</p>}
+          {availError ? (
+            <div role="alert">
+              <p className="book__warn">{booking.time.loadError}</p>
+              <button type="button" className="btn btn--ghost book__retry" onClick={refresh}>
+                {booking.time.retry}
+              </button>
+            </div>
+          ) : (
+            busy && (
+              <p className="book__hint" role="status">
+                {booking.time.checking}
+              </p>
+            )
+          )}
         </div>
         <div id="book-time" tabIndex={-1}>
-          <TimeDial slots={slots} value={s.time} onChange={(time) => set({ time })} label={booking.time.label} />
+          <TimeDial slots={slots} value={s.time} onChange={(time) => set({ time })} label={booking.time.label} busy={busy} />
         </div>
       </section>
 
@@ -275,8 +396,9 @@ export function BookingFlow() {
         <div id="book-table" tabIndex={-1}>
           <FloorPlan
             meal={s.meal}
-            date={s.date}
             time={s.time}
+            isTaken={(tableId) => !!s.time && taken(tableId, s.date, s.time)}
+            busy={busy}
             guests={s.guests}
             area={s.area}
             value={s.tableId}
@@ -322,7 +444,19 @@ export function BookingFlow() {
               placeholder={booking.details.note.placeholder}
               value={s.note}
               onChange={(e) => set({ note: e.target.value })}
+              aria-invalid={errors.note ? true : undefined}
+              aria-describedby={errors.note ? "book-note-err" : undefined}
             />
+            {errors.note && (
+              <p id="book-note-err" className="details__error" aria-live="polite">
+                {errors.note}
+              </p>
+            )}
+          </div>
+          {/* Honeypot: hidden from people, filled in by bots; the server refuses it when it isn't empty. */}
+          <div className="hp" aria-hidden="true">
+            <label htmlFor="book-website">Website</label>
+            <input ref={honeypot} id="book-website" name="website" type="text" tabIndex={-1} autoComplete="off" defaultValue="" />
           </div>
         </div>
       </section>
@@ -338,13 +472,13 @@ export function BookingFlow() {
             {table && ` · ${table.label}`}
           </span>
         </p>
-        {errors.missing && (
+        {(errors.missing || errors.server) && (
           <p className="book__missing" role="alert">
-            {errors.missing}
+            {errors.missing ?? errors.server}
           </p>
         )}
-        <button type="submit" className="btn btn--primary book__confirm">
-          {booking.details.confirm}
+        <button type="submit" className="btn btn--primary book__confirm" disabled={submitting} aria-busy={submitting || undefined}>
+          {submitting ? booking.details.confirming : booking.details.confirm}
         </button>
       </div>
     </form>

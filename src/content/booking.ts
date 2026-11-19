@@ -62,6 +62,9 @@ export const booking = {
     hint: "Turn the spiral, use the arrow keys, or tap a time.",
     legend: { available: "Available", almost: "Almost full", full: "Full" },
     none: "No tables left for this moment — try another day.",
+    checking: "Checking which tables are free…",
+    loadError: "We couldn't check which tables are free.",
+    retry: "Try again",
     stepMinutes: 30,
     /** Last booking this many minutes before closing. */
     lastBeforeClose: 60,
@@ -80,6 +83,7 @@ export const booking = {
     tooSmall: "Too small for your party",
     tooBig: "Kept for larger parties",
     pickTime: "Choose a time first",
+    checking: "Checking tables…",
     /** The plan and "Where to sit" stay in sync. */
     switched: (area: string) => `Switched "Where to sit" to ${area}.`,
     switchAndSelect: (area: string) => `Sit here instead (${area})`,
@@ -162,7 +166,10 @@ export const booking = {
     email: { label: "Email", placeholder: "you@example.com", error: "That doesn't look like an email address." },
     note: { label: "Anything we should know?", placeholder: "Allergies, high chair, a surprise…", max: 200 },
     confirm: "Confirm booking",
+    confirming: "Confirming…",
     missing: "Choose a time and a table first.",
+    /** The chosen table was booked by someone else while this page was open. */
+    tableGone: "That table has just been booked by someone else. Please pick another one.",
   },
 
   summary: {

@@ -299,6 +299,7 @@ export const visit = {
     label: "Email address",
     placeholder: "you@example.com",
     submit: "Subscribe",
+    sending: "Subscribing…",
     errors: {
       empty: "Please enter your email address.",
       invalid: "That doesn't look like an email address — check for a typo?",

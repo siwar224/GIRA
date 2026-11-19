@@ -5,7 +5,14 @@ import { booking } from "@/content/booking";
 import type { SlotStatus } from "@/lib/booking";
 
 type Slot = { time: string; status: SlotStatus };
-type Props = { slots: Slot[]; value: string | null; onChange: (time: string) => void; label: string };
+type Props = {
+  slots: Slot[];
+  value: string | null;
+  onChange: (time: string) => void;
+  label: string;
+  /** Availability is still loading (or failed): times are shown but can't be chosen yet. */
+  busy?: boolean;
+};
 
 /** Degrees between two neighbouring times on the ring. */
 const STEP = 34;
@@ -15,7 +22,10 @@ const STEP = 34;
  * under the saffron marker at the top. Drag to turn it (it snaps to the nearest open time),
  * scroll, use the arrow keys, or tap a time. Full times are shown but can't be chosen.
  */
-export function TimeDial({ slots, value, onChange, label }: Props) {
+export function TimeDial({ slots, value, onChange: choose, label, busy = false }: Props) {
+  const onChange = (time: string) => {
+    if (!busy) choose(time);
+  };
   const ref = useRef<HTMLDivElement>(null);
   const index = Math.max(0, slots.findIndex((s) => s.time === value));
   const [drag, setDrag] = useState<{ startAngle: number; startRot: number } | null>(null);
@@ -94,12 +104,13 @@ export function TimeDial({ slots, value, onChange, label }: Props) {
   stepRef.current = step;
 
   return (
-    <div className="dial-wrap">
+    <div className="dial-wrap" data-busy={busy || undefined}>
       <div
         ref={ref}
         className="dial"
         role="radiogroup"
         aria-label={label}
+        aria-busy={busy || undefined}
         tabIndex={0}
         onKeyDown={onKeyDown}
         onPointerDown={onPointerDown}

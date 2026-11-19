@@ -25,6 +25,11 @@ export const site = {
   skipLink: "Skip to content",
   preloader: { label: "Preparing the kitchen" },
   scrollHint: "Scroll",
+  /** Shown when a request to the API fails before the server can explain why. */
+  api: {
+    network: "We couldn't reach GIRA. Check your connection and try again.",
+    generic: "Something went wrong on our side. Please try again.",
+  },
 } as const;
 
 export const seo = {

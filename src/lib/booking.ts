@@ -103,52 +103,26 @@ export function demoTaken(tableId: string, iso: string, time: string): boolean {
   return hash01(`${tableId}|${iso}|${time}`) < 0.22 + peak + (weekend ? 0.12 : 0);
 }
 
-/** DEMO availability (frontend only, until it reads /api/availability): the pattern above plus this browser's bookings. */
-export function isTaken(tableId: string, iso: string, time: string): boolean {
-  if (bookedLocally().some((b) => b.tableId === tableId && b.date === iso && b.time === time)) return true;
-  return demoTaken(tableId, iso, time);
-}
-
 /** Minutes since midnight, "19:30" → 1170. */
 export const minutesOf = toMin;
+
+/** Is this table unavailable at this day and time? (Answered from /api/availability.) */
+export type TakenFn = (tableId: string, iso: string, time: string) => boolean;
 
 export type SlotStatus = "available" | "almost" | "full";
 
 /** How many fitting tables are still free at this time. */
-export function slotStatus(iso: string, time: string, guests: number, area: AreaId | null): SlotStatus {
+export function slotStatus(iso: string, time: string, guests: number, area: AreaId | null, taken: TakenFn): SlotStatus {
   const free = booking.tables.filter(
-    (t) => fits(t.size, guests) && (!area || t.area === area) && !isTaken(t.id, iso, time),
+    (t) => fits(t.size, guests) && (!area || t.area === area) && !taken(t.id, iso, time),
   ).length;
   return free === 0 ? "full" : free <= 1 ? "almost" : "available";
 }
 
 export const tableById = (id: string | null) => booking.tables.find((t) => t.id === id) ?? null;
 
-// ── Bookings kept in this browser (until the real backend / dashboard) ────────
+/** A booking the server has confirmed, as the ticket shows it. */
 export type SavedBooking = BookingState & { code: string; createdAt: number };
-const KEY = "gira.bookings.v1";
-
-export function bookedLocally(): SavedBooking[] {
-  if (typeof window === "undefined") return [];
-  try {
-    return JSON.parse(window.localStorage.getItem(KEY) ?? "[]") as SavedBooking[];
-  } catch {
-    return [];
-  }
-}
-
-export function saveBooking(b: BookingState): SavedBooking {
-  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let code = "GIRA-";
-  for (let i = 0; i < 4; i++) code += alphabet[Math.floor(Math.random() * alphabet.length)];
-  const saved = { ...b, code, createdAt: Date.now() };
-  try {
-    window.localStorage.setItem(KEY, JSON.stringify([...bookedLocally(), saved]));
-  } catch {
-    /* private mode: the ticket still shows */
-  }
-  return saved;
-}
 
 /** A downloadable .ics calendar entry (local time in the restaurant's zone). */
 export function icsFor(b: SavedBooking): string {

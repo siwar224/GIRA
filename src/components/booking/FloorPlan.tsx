@@ -2,12 +2,15 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { booking, type AreaId, type Meal } from "@/content/booking";
-import { fits, isTaken, type Table } from "@/lib/booking";
+import { fits, type Table } from "@/lib/booking";
 
 type Props = {
   meal: Meal;
-  date: string;
   time: string | null;
+  /** Is this table already held at the chosen time? */
+  isTaken: (tableId: string) => boolean;
+  /** Availability is still loading (or failed): the plan stays locked. */
+  busy: boolean;
   guests: number;
   area: AreaId | null;
   value: string | null;
@@ -24,14 +27,14 @@ type TableState = "free" | "taken" | "small" | "big";
  * Tables that fit the party and are free at the chosen time glow; tapping one opens its card
  * with the area photo in the same light. Counter seats are highlighted over the real stools.
  */
-export function FloorPlan({ meal, date, time, guests, area, value, onChange, onShowAll }: Props) {
+export function FloorPlan({ meal, time, isTaken, busy, guests, area, value, onChange, onShowAll }: Props) {
   const [focus, setFocus] = useState<string | null>(value);
   const P = booking.plan;
 
   const stateOf = (t: Table): TableState => {
     if (t.size < guests) return "small";
     if (!fits(t.size, guests)) return "big";
-    if (time && isTaken(t.id, date, time)) return "taken";
+    if (time && isTaken(t.id)) return "taken";
     return "free";
   };
 
@@ -54,8 +57,8 @@ export function FloorPlan({ meal, date, time, guests, area, value, onChange, onS
   const shownArea = shown ? booking.areas.find((a) => a.id === shown.area) : null;
 
   return (
-    <div className="plan" data-meal={meal} data-locked={!time || undefined}>
-      {area && time && (
+    <div className="plan" data-meal={meal} data-locked={!time || busy || undefined} aria-busy={busy || undefined}>
+      {area && time && !busy && (
         <div className="plan__status" role="status">
           {freeInArea.length ? (
             <p>{P.inArea(areaLabel(area), freeInArea.length)}</p>
@@ -101,7 +104,7 @@ export function FloorPlan({ meal, date, time, guests, area, value, onChange, onS
               style={{ left: `${t.x}%`, top: `${t.y}%`, width: t.counter ? "11%" : `${w}%` }}
               aria-label={`${t.label}, ${reason}`}
               aria-pressed={value === t.id}
-              disabled={!time}
+              disabled={!time || busy}
               onClick={() => {
                 setFocus(t.id);
                 // In the chosen area (or anywhere): select straight away. Another area: show its
@@ -125,7 +128,7 @@ export function FloorPlan({ meal, date, time, guests, area, value, onChange, onS
           );
         })}
 
-        {!time && <p className="plan__lock">{P.pickTime}</p>}
+        {!time ? <p className="plan__lock">{P.pickTime}</p> : busy && <p className="plan__lock">{P.checking}</p>}
       </div>
 
       {shown && shownArea && (

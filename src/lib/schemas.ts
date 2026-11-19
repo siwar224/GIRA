@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { booking, type OccasionId } from "@/content/booking";
+import { booking, type Meal, type OccasionId } from "@/content/booking";
+import { visit } from "@/content/sections";
 
 /**
  * Request shapes for the API, shared by the browser (to check before sending) and the
@@ -59,3 +60,39 @@ export const bookingRequest = z.object({
 });
 export type BookingRequest = z.infer<typeof bookingRequest>;
 export type BookingRequestInput = z.input<typeof bookingRequest>;
+
+const N = visit.newsletter.errors;
+
+export const newsletterRequest = z.object({
+  email: z.string().trim().toLowerCase().min(1, N.empty).max(254, N.invalid).regex(EMAIL_RE, N.invalid),
+  /** Honeypot, as on the booking form. */
+  website: z.string().max(0).optional(),
+});
+export type NewsletterRequest = z.infer<typeof newsletterRequest>;
+export type NewsletterRequestInput = z.input<typeof newsletterRequest>;
+
+// ── Responses ─────────────────────────────────────────────────────────────────
+
+/** GET /api/availability */
+export type Availability = {
+  date: string;
+  durationMinutes: number;
+  /** Every bookable time of the day, with the tables that can't be booked then. */
+  slots: { time: string; meal: Meal; taken: string[] }[];
+};
+
+/** POST /api/bookings → { booking } */
+export type ConfirmedBooking = {
+  code: string;
+  date: string;
+  time: string;
+  guests: number;
+  meal: Meal;
+  occasion: OccasionId;
+  tableId: string;
+  name: string;
+  createdAt: string;
+};
+
+/** Any non-2xx response. */
+export type ApiErrorBody = { error: { code: string; message: string; fields?: Record<string, string[]> } };
