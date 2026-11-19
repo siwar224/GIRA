@@ -21,9 +21,19 @@ const sameText = (a: string, b: string) => {
   return timingSafeEqual(x, y);
 };
 
+/** Says exactly what's wrong with the setup: missing, or too short to be safe. */
+const notConfigured = () =>
+  new ApiError(
+    503,
+    "staff_not_configured",
+    process.env.STAFF_PASSWORD?.trim()
+      ? "La sala's STAFF_PASSWORD is too short: use at least 12 characters."
+      : "La sala isn't set up yet (STAFF_PASSWORD).",
+  );
+
 function key(): Buffer {
   const password = staffPassword();
-  if (!password) throw new ApiError(503, "staff_not_configured", "La sala isn't set up yet (STAFF_PASSWORD).");
+  if (!password) throw notConfigured();
   return createHash("sha256").update(`${serverEnv().RATE_LIMIT_SALT}:staff:${password}`).digest();
 }
 
@@ -32,7 +42,7 @@ const sign = (expires: number) => createHmac("sha256", key()).update(String(expi
 /** Checks the password and returns a fresh session token, or throws a 401. */
 export function signIn(password: string): { token: string; maxAge: number } {
   const expected = staffPassword();
-  if (!expected) throw new ApiError(503, "staff_not_configured", "La sala isn't set up yet (STAFF_PASSWORD).");
+  if (!expected) throw notConfigured();
   if (!sameText(password, expected)) throw new ApiError(401, "wrong_password", "That password isn't right.");
   const maxAge = SESSION_HOURS * 3600;
   const expires = Date.now() + maxAge * 1000;
