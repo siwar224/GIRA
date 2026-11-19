@@ -1,11 +1,23 @@
 // Applies the SQL files in db/migrations, in order, each exactly once.
 //
-//   npm run db:migrate
+//   npm run db:migrate          by hand, against the database in .env.local
+//   node scripts/migrate.mjs --vercel-only
+//                               from `prebuild`: runs only inside a Vercel build
+//
+// On Vercel, every Production and Preview build migrates its own database before the app is
+// built: production migrates `main`, each preview migrates its own Neon branch. A failing
+// migration fails the build, so the new code never goes live on an old schema.
+// Anywhere else (your machine, GitHub Actions) `--vercel-only` does nothing.
+// Set SKIP_DB_MIGRATIONS=1 on a deployment to skip it in an emergency.
 //
 // Reads DATABASE_URL_UNPOOLED (preferred: a direct connection for schema changes) or
 // DATABASE_URL from the environment, or from .env.local / .env when present.
 // Applied files are recorded in `schema_migrations`; each one runs in its own transaction,
 // so a failing migration leaves the database exactly as it was before it.
+//
+// While a deploy builds, the previous version keeps serving traffic on the migrated
+// database. So migrations must be additive: add tables, columns and indexes; rename or drop
+// only in a later release, once no live code uses them.
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -14,11 +26,25 @@ import pg from "pg";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const dir = path.join(root, "db", "migrations");
 
-for (const file of [".env.local", ".env"]) {
-  try {
-    process.loadEnvFile(path.join(root, file)); // never overrides variables already set
-  } catch {
-    /* file absent: rely on the real environment */
+if (process.argv.includes("--vercel-only")) {
+  const env = process.env.VERCEL_ENV;
+  if (process.env.VERCEL !== "1" || (env !== "production" && env !== "preview")) {
+    console.log("· Database migrations: skipped (not a Vercel Production or Preview build).");
+    process.exit(0);
+  }
+  if (process.env.SKIP_DB_MIGRATIONS === "1") {
+    console.log("· Database migrations: skipped (SKIP_DB_MIGRATIONS=1).");
+    process.exit(0);
+  }
+  const branch = process.env.VERCEL_GIT_COMMIT_REF ?? "unknown branch";
+  console.log(`· Database migrations: ${env} build of "${branch}".`);
+} else {
+  for (const file of [".env.local", ".env"]) {
+    try {
+      process.loadEnvFile(path.join(root, file)); // never overrides variables already set
+    } catch {
+      /* file absent: rely on the real environment */
+    }
   }
 }
 
